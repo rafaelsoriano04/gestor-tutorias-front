@@ -5,3 +5,20 @@
 .container {
     max-height: 100%;
 }
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+  }
+  
+  .container {
+    min-height: 100vh; /* Esto hace que el contenedor tenga al menos la altura de la ventana del navegador */
+    display: flex;
+    flex-direction: column; /* Organiza cualquier contenido en una dirección de columna */
+  }
+
+  .row {
+    flex-grow: 1; /* Esto permite que la fila crezca para ocupar cualquier espacio disponible en el contenedor */
+  }
+  
