@@ -1,3 +1,12 @@
 .login {
     height: 100%;
 }
+a{
+    cursor: pointer;
+}
+
+button:hover{
+    box-shadow: 0 0 5px white;
+    transform: scale(1.1);
+    transition: 0.7s ease;
+}

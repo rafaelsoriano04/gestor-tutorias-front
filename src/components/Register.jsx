@@ -19,7 +19,7 @@ const Register = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setUsuario({
-            ...Usuario,
+            ...usuario,
             [name]: value
         });
     };
@@ -53,6 +53,14 @@ const Register = () => {
     */
 
     return (
+
+        <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/x-icon" href="src/assets/ventanaIcon.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Registro Reportes</title>
+        </head>,
+
         <div className='formulario'>
             <img className="logo" src={logoUsuario} alt="LogoUsuario" />
             <p className='titulo'>Crea un usuario</p>
@@ -118,12 +126,19 @@ const Register = () => {
                     value={usuario.repitaContrasenia}
                     onChange={handleChange}
                 />
-
+                <div className='botones'>
                 <input
                     type="submit"
-                    value="Registrate"
+                    value="Resgístrate"
                     className='botonRegistrate'
                 />
+                <input
+                    type="submit"
+                    value="Cancelar"
+                    className='botonRegistrate'
+                    href='#'
+                />
+                </div>
             </form>
         </div>
     );
