@@ -9,20 +9,24 @@ function App() {
   // Agregar la definición de estado para controlar la visualización de Login o Register
   const [showLogin, setShowLogin] = useState(true);
 
-  const handelClick = () => {
+  const handleClick = () => {
     if (showLogin) return <Login onRegisterClick={() => setShowLogin(false)} />;
     return <Register onLoginClick={() => setShowLogin(true)} />;
   };
 
   return (
-    <div className="container text-center">
-      <div className="row align-items-center">
-        <div className="col d-flex align-items-center justify-content-center">
-          <img className="img" src={imgInicio} alt="Inicio" />
+    <section>
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col d-flex align-items-center justify-content-center vh-100">
+            <img className="img-fluid" src={imgInicio} alt="Inicio" />
+          </div>
+          <div className="frm col d-flex align-items-center justify-content-center vh-100">
+            {handleClick()}
+          </div>
         </div>
-        <div className="col">{handelClick()}</div>
       </div>
-    </div>
+    </section>
   );
 }
 

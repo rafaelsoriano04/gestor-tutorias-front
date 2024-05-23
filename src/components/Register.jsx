@@ -1,98 +1,132 @@
-// src/components/Register.jsx
-import React, { useState } from 'react';
-import './Register.css';  // Asegúrate de que el path del CSS es correcto
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/Register.css';
+import logoUsuario from '../assets/logoUsuario.png'
+import { useState } from 'react';
+const Register = () => {
+    const [usuario, setUsuario] = useState({
+        nombre_usuario: "",
+        contrasenia: "",
+        cargo: "",
+        persona: {
+            identificacion: "",
+            nombre: "",
+            apellido: "",
+            telefono: "",
+            email: ""
+        }
+    });
 
-function Register({ onLoginClick }) {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: ''  // Agrego campo para confirmar contraseña
-  });
+    // Función para manejar el cambio en los inputs
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUsuario({
+            ...Usuario,
+            [name]: value
+        });
+    };
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData(prevFormData => ({
-      ...prevFormData,
-      [name]: value
-    }));
-  };
+    // Le usas axios para la api ya, ahi guiate en el login
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Agregar validación de las contraseñas que coincidan
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match!');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:3000/usuarios/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
+    /*
+         const handleSubmit = (e) => {
+        e.preventDefault();
+        // Aquí puedes enviar formData a tu API
+        console.log(formData);
+  
+        // Ejemplo de cómo hacer una petición POST a una API
+        fetch('https://your-api-endpoint.com/registro', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
         })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log('Registration Successful:', data);
-        alert('Registration successful!');
-      } else {
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      console.error('Registration failed:', error);
-      alert('Registration failed: ' + error.message);
-    }
-  };
+        .then(response => response.json())
+        .then(data => {
+            // Manejar la respuesta de la API
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            // Manejar los errores
+            console.error('Error:', error);
+        });
+    };
+    */
 
-  return (
-    <div>
-      <form onSubmit={handleSubmit} className="register-form">
-        <h2>Register</h2>
-        <div className="form-group">
-          <label>Username:
-            <input
-              type="text"
-              name="username"
-              className="form-control"
-              value={formData.username}
-              onChange={handleChange}
-            />
-          </label>
+    return (
+        <div className='formulario'>
+            <img className="logo" src={logoUsuario} alt="LogoUsuario" />
+            <p className='titulo'>Crea un usuario</p>
+            <p>Es rápido y fácil</p>
+            <form action="#">
+                <div className='cajaTexto'>
+                    <input
+                        type="text"
+                        className="ingreso"
+                        placeholder='Nombre'
+                        name="nombre"
+                        value={usuario.nombre}
+                        onChange={handleChange}
+                    />
+                    <input
+                        type="text"
+                        className="ingreso"
+                        placeholder='Apellido'
+                        name="apellido"
+                        value={usuario.apellido}
+                        onChange={handleChange}
+                    />
+                </div>
+                <input
+                    type="text"
+                    className="email"
+                    placeholder='Correo Electronico'
+                    name="correoElectronico"
+                    value={usuario.correoElectronico}
+                    onChange={handleChange}
+                />
+                <div className='cajaTexto'>
+                    <input
+                        type="text"
+                        className="ingreso"
+                        placeholder='Usuario'
+                        name="usuario"
+                        value={usuario.usuario}
+                        onChange={handleChange}
+                    />
+                    <input
+                        type="text"
+                        className="ingreso"
+                        placeholder='Cédula'
+                        name="cedula"
+                        value={usuario.cedula}
+                        onChange={handleChange}
+                    />
+                </div>
+                <input
+                    type="text"
+                    className="contraseña"
+                    placeholder='Contraseña'
+                    name="contraseña"
+                    value={usuario.contrasenia}
+                    onChange={handleChange}
+                />
+                <input
+                    type="text"
+                    className="contraseña"
+                    placeholder='Repita Contraseña'
+                    name="repitaContraseña"
+                    value={usuario.repitaContrasenia}
+                    onChange={handleChange}
+                />
+
+                <input
+                    type="submit"
+                    value="Registrate"
+                    className='botonRegistrate'
+                />
+            </form>
         </div>
-        <div className="form-group">
-          <label>Password:
-            <input
-              type="password"
-              name="password"
-              className="form-control"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <div className="form-group">
-          <label>Confirm Password:
-            <input
-              type="password"
-              name="confirmPassword"
-              className="form-control"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <button type="submit" className="btn btn-primary">Register</button>
-        <button type="button" className="btn btn-link" onClick={onLoginClick}>Login</button>
-      </form>
-    </div>
-  );
-}
+    );
+};
 
 export default Register;
