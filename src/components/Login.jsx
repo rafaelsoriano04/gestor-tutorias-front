@@ -4,11 +4,14 @@ import axios from "axios";
 import "./css/Login.css"; // Asegúrate de que el path del CSS es correcto
 import "bootstrap/dist/css/bootstrap.min.css";
 import logoUsuario from "../assets/logoUsuario.png"
+import { useNavigate } from 'react-router-dom';
+
 
 function Login({ onRegisterClick }) {
   const [jwtToken, setJwtToken] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const validarDatos = async () => {
     return await axios
@@ -32,12 +35,19 @@ function Login({ onRegisterClick }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const token = await validarDatos();
-
+    const token = await validarDatos(); 
+    
     console.log(token);
-    setJwtToken(token);
+    
+    if (token) { 
+      setJwtToken(token);
+      navigate('/principal'); 
+    } else {
+      alert('Login Fallido');
+    }
 
   };
+  
 
   return (
     <form onSubmit={handleSubmit} className="login container-fluid d-flex flex-column justify-content-center align-items-center p-5 m-5" style={{ height: '100vh' }}>
@@ -67,48 +77,10 @@ function Login({ onRegisterClick }) {
       <p className="mt-3">
         <a onClick={onRegisterClick} className="link-underline-light link-offset-2 text-white">Olvidé mi contraseña</a>
       </p>
-      <a href="./../TrackerPrincipal.html"><button type="submit" className="btnInicio btn btn-secondary mt-4 btn-lg pe-4 ps-4">Iniciar sesión</button></a>
+      <a ><button type="submit" className="btnInicio btn btn-secondary mt-4 btn-lg pe-4 ps-4">Iniciar sesión</button></a>
     </form>
   );
 
 }
 
 export default Login;
-
-/* <form onSubmit={handleSubmit} className="login-form">
-  <h2>Login</h2>
-  <div className="form-group">
-    <label>
-      Usuario:
-      <input
-        type="text"
-        name="username"
-        className="form-control"
-        value={username}
-        onChange={handleUsernameChange}
-      />
-    </label>
-  </div>
-  <div className="form-group">
-    <label>
-      Contraseña:
-      <input
-        type="password"
-        name="password"
-        className="form-control"
-        value={password}
-        onChange={handlePasswordChange}
-      />
-    </label>
-  </div>
-  <button type="submit" className="btn btn-primary">
-    Login
-  </button>
-  <button
-    type="button"
-    className="btn btn-link"
-    onClick={onRegisterClick}
-  >
-    Register
-  </button>
-</form> */

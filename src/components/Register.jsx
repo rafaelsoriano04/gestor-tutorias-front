@@ -4,7 +4,7 @@ import React, { ChangeEvent, useState } from "react";
 import axios from "axios";
 import logoUsuario from "../assets/logoUsuario.png";
 
-const Register = () => {
+const Register = ({ onLoginClick }) => {
   const [jwtToken, setJwtToken] = useState("");
   const [usuario, setUsuario] = useState({
     nombre_usuario: "",
@@ -156,9 +156,9 @@ const Register = () => {
             />
             <input
               type="submit"
-              value="Cancelar"
+              value="Regresar"
               className="botonRegistrate"
-              href="#"
+              onClick={onLoginClick}
             />
           </div>
         </form>
