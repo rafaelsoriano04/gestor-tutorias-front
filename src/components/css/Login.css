@@ -5,8 +5,10 @@ a{
     cursor: pointer;
 }
 
-button:hover{
+
+.btnInicio:hover{
     box-shadow: 0 0 5px white;
     transform: scale(1.1);
     transition: 0.7s ease;
+    background-color: #9B2B2B;
 }

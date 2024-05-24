@@ -33,15 +33,17 @@ function Login({ onRegisterClick }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const token = await validarDatos();
+
     console.log(token);
     setJwtToken(token);
+
   };
 
   return (
     <form onSubmit={handleSubmit} className="login container-fluid d-flex flex-column justify-content-center align-items-center p-5 m-5" style={{ height: '100vh' }}>
       <img className="img-fluid mb-3" src={logoUsuario} alt="User Logo" style={{ maxHeight: '110px' }} />
       <p className="font-weight-bold fs-1">Login</p>
-      <p><a class="link-opacity-25-hover text-white" onClick={onRegisterClick}>Crear una cuenta</a></p>
+      <p><a className="link-opacity-25-hover text-white" onClick={onRegisterClick}>Crear una cuenta</a></p>
       <div className="mt-4" style={{ width: '100%', maxWidth: '400px' }}>
         <label className="fs-5 pb-2">Nombre de usuario:</label>
         <input
@@ -65,7 +67,7 @@ function Login({ onRegisterClick }) {
       <p className="mt-3">
         <a onClick={onRegisterClick} className="link-underline-light link-offset-2 text-white">Olvidé mi contraseña</a>
       </p>
-      <button type="submit" class="btn btn-secondary mt-4 btn-lg pe-4 ps-4">Iniciar sesión</button>
+      <a href="./../TrackerPrincipal.html"><button type="submit" className="btnInicio btn btn-secondary mt-4 btn-lg pe-4 ps-4">Iniciar sesión</button></a>
     </form>
   );
 
