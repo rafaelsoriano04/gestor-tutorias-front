@@ -1,7 +1,7 @@
 // src/components/Login.jsx
 import React, { ChangeEvent, useState } from "react";
 import axios from "axios";
-import "./css/Login.css"; // Asegúrate de que el path del CSS es correcto
+import "./css/Login.css"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import logoUsuario from "../assets/logoUsuario.png"
 import { useNavigate } from 'react-router-dom';
@@ -36,16 +36,14 @@ function Login({ onRegisterClick }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const token = await validarDatos(); 
-    
-    console.log(token);
-    
+    console.log("Token received:", token); // Mensaje de depuración
+
     if (token) { 
-      setJwtToken(token);
+      localStorage.setItem('jwtToken', token); // Guarda el token en el localStorage con la clave 'jwtToken'
       navigate('/principal'); 
     } else {
       alert('Login Fallido');
     }
-
   };
   
 

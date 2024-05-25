@@ -1,0 +1,18 @@
+.bg-custom {
+
+    background-color: #9B2B2B;
+}
+.navbar-text{
+    padding-left: 2%;
+    color: white;
+    font-size: 1.5rem;
+}
+.logout .fa-user {
+    color: white; /* Color del icono */
+    font-size: 2rem; /* Ajusta el tamaño del icono según tus necesidades */
+}
+
+.logout-text {
+    color: white; /* Color del texto */
+    font-size: 1rem; /* Ajusta el tamaño del texto según tus necesidades */
+}

@@ -8,6 +8,7 @@ import Register from "./components/Register.jsx";
 import Principal from "./components/Principal";  
 import PrivateRoute from './components/PrivateRoute';
 
+
 function App() {
   // Estado para controlar la visualización de Login o Register
   const [showLogin, setShowLogin] = useState(true);
@@ -37,7 +38,7 @@ function App() {
           </section>
         }/>
         <Route element={<PrivateRoute />}>
-          <Route path="/principal" element={<Principal />} />
+          <Route path="/principal" element={<Principal/>} />
         </Route>
       </Routes>
     </Router>

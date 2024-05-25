@@ -1,7 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
 const PrivateRoute = () => {
-  const token = localStorage.getItem('token');  // Asume que tu token se almacena con la clave 'token'
+  const token = localStorage.getItem('jwtToken'); // Usa la clave 'jwtToken'
+  console.log("Token in PrivateRoute:", token); // Mensaje de depuración
   return token ? <Outlet /> : <Navigate to="/" replace />;
 };
 
