@@ -59,6 +59,7 @@ function Principal() {
         <div className="container-fluid d-flex justify-content-between">
           <span className="navbar-text text-custom">
             Bienvenido {persona.nombre} {persona.apellido}
+            
           </span>
           <div
             className="d-flex align-items-center text-custom logout"
