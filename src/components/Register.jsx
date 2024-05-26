@@ -1,9 +1,11 @@
 import "./css/Register.css";
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import logoUsuario from "../assets/logoUsuario.png";
+import { useNavigate } from 'react-router-dom';
 
 const Register = ({ onLoginClick }) => {
+  const navigate = useNavigate();
   const [usuario, setUsuario] = useState({
     nombre_usuario: "",
     contrasenia: "",
@@ -17,11 +19,36 @@ const Register = ({ onLoginClick }) => {
     },
   });
 
+  const login = async (nombre_usuario, contrasenia) => {
+    const token = await axios
+      .post("http://localhost:3000/auth/login", {
+        nombre_usuario,
+        contrasenia,
+      })
+      .then((resp) => resp.data)
+      .catch((error) => {
+        console.log(error.response.data.message);
+      });
+
+    if (token) {
+      localStorage.setItem("jwtToken", token); // Guarda el token en el localStorage con la clave 'jwtToken'
+      navigate("/principal");
+      onLoginClick()
+    } else {
+      alert("Login Fallido");
+    }
+  };
+
   const validarDatos = async () => {
     console.log(usuario);
     try {
-      const response = await axios.post("http://localhost:3000/docentes", usuario);
-      return response.data;
+      const { data } = await axios.post(
+        "http://localhost:3000/docente",
+        usuario
+      );
+      console.log(data.nombre_usuario, usuario.contrasenia);
+      login(data.nombre_usuario, usuario.contrasenia)
+      return data;
     } catch (error) {
       if (error.response) {
         // Control de validaciones
@@ -146,11 +173,7 @@ const Register = ({ onLoginClick }) => {
           name="repitaContraseña"
         />
         <div className="botones">
-          <input
-            type="submit"
-            value="Regístrate"
-            className="botonRegistrate"
-          />
+          <input type="submit" value="Regístrate" className="botonRegistrate" />
           <input
             type="button"
             value="Regresar"
