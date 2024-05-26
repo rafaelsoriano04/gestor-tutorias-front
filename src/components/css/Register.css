@@ -1,0 +1,97 @@
+:root{
+  --bg-color:#9B2B2B;
+  --text-color: white;
+  --secod-color:#737373;
+  --tipo-letra: Gadugi
+}
+body{
+  padding: 0;
+  margin: 0;
+}
+
+.titulo{
+  font-size: 2rem;
+  color: var(--text-color);
+  margin-bottom: 0;
+  font-family: var(--tipo-letra);
+}
+
+
+.formulario{
+  font-family: var(--tipo-letra);
+  background-color: var(--bg-color);
+  display: inline-block;
+  width: 60%;
+  height: 100%;
+  font-family: var(--tipo-letra);
+  text-align: center;
+}
+.formulario .email{
+  width: 100%;
+  margin-top: 17px;
+  height: 2rem;
+  border-radius: 4px;
+  border:none;
+}
+
+form{
+  width: 100%;
+  height: 50%;
+  }
+
+
+.logo {
+  width: 6rem;
+  height: 7rem;
+  margin: auto;
+  margin-top: 5.5rem;
+}
+
+.formulario .contraseña{
+  width: 100%;
+  margin-top: 17px;
+  height: 2rem;
+  padding-top: 10px;
+  border-radius: 4px;
+  border: none;
+}
+
+.ingreso{
+  margin-top: 17px;
+  border-radius: 4px;
+  width: 45%;
+  height: 2rem;
+  border: none;
+}
+
+.cajaTexto{
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+
+.botonRegistrate{
+  border-radius: 20px;
+  width: 10rem;
+  height: 3rem;
+  font-size: 20px;
+  background-color: var(--secod-color);
+  color: var(--text-color);
+  margin-top: 2rem;
+  font-family: var(--tipo-letra);
+  border: none;
+}
+
+.botonRegistrate:hover{
+  box-shadow: 0 0 5px white;
+  transform: scale(1.1);
+  transition: 0.7s ease;
+  background-color: var(--bg-color);
+}
+
+.botones{
+  width: 100%;
+  display: inline-flex;
+  justify-content: space-between;
+}
