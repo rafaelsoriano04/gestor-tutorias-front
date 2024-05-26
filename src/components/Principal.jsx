@@ -59,20 +59,19 @@ function Principal() {
         <div className="container-fluid d-flex justify-content-between">
           <span className="navbar-text text-custom">
             Bienvenido {persona.nombre} {persona.apellido}
-            
           </span>
           <div
             className="d-flex align-items-center text-custom logout"
             style={{ cursor: 'pointer' }}
             onClick={handleNavigation}
           >
-            <i className="fas fa-user fa-2x mr-2"></i> {/* fa-2x hace el icono más grande */}
-            <span className="logout-text">Cerrar sesión</span>
+            <i className="fas fa-user mr-2"></i>
+            <span className="logout-text ms-2">Cerrar sesión</span>
           </div>
         </div>
       </nav>
 
-      
+
     </div>
 
   );

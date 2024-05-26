@@ -3,12 +3,14 @@ import { useState } from "react";
 import axios from "axios";
 import logoUsuario from "../assets/logoUsuario.png";
 import { useNavigate } from 'react-router-dom';
+import Swal from "sweetalert2";
 
 const Register = ({ onLoginClick }) => {
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState({
     nombre_usuario: "",
     contrasenia: "",
+    repitaContrasenia: "",
     cargo: "Docente",
     persona: {
       nombre: "",
@@ -18,56 +20,55 @@ const Register = ({ onLoginClick }) => {
       email: "",
     },
   });
+  const [mensajeError, setMensajeError] = useState('');
 
   const login = async (nombre_usuario, contrasenia) => {
-    const token = await axios
-      .post("http://localhost:3000/auth/login", {
+    try {
+      const { data: token } = await axios.post("http://localhost:3000/auth/login", {
         nombre_usuario,
         contrasenia,
-      })
-      .then((resp) => resp.data)
-      .catch((error) => {
-        console.log(error.response.data.message);
       });
-
-    if (token) {
-      localStorage.setItem("jwtToken", token); // Guarda el token en el localStorage con la clave 'jwtToken'
+      localStorage.setItem("jwtToken", token);
       navigate("/principal");
-      onLoginClick()
-    } else {
-      alert("Login Fallido");
+      onLoginClick();
+    } catch (error) {
+      Swal.fire({
+        html: '<i>Usuario creado, pero no se pudo iniciar la aplicación</i>',
+        icon: 'error',
+      });
+      onLoginClick();
     }
   };
 
   const validarDatos = async () => {
-    console.log(usuario);
+    const { repitaContrasenia, ...usuarioDTO } = usuario
+
     try {
-      const { data } = await axios.post(
-        "http://localhost:3000/docente",
-        usuario
-      );
-      console.log(data.nombre_usuario, usuario.contrasenia);
-      login(data.nombre_usuario, usuario.contrasenia)
-      return data;
+      const { data } = await axios.post("http://localhost:3000/docente", usuarioDTO);
+      login(data.nombre_usuario, usuario.contrasenia);
     } catch (error) {
       if (error.response) {
-        // Control de validaciones
         if (error.response.status === 400) {
-          alert(error.response.data.message); // Mensaje general si no cumple las condiciones anteriores
+          setMensajeError('Completa todos los campos...');
         } else {
-          // Manejar otros códigos de estado aquí si es necesario
-          alert("Error en el servidor, por favor intenta más tarde.");
+          Swal.fire({
+            html: '<i>Error al conectar con el servidor, inténtelo de nuevo más tarde...</i>',
+            icon: 'error',
+          });
         }
+      } else {
+        Swal.fire({
+          html: '<i>Error al conectar con el servidor, inténtelo de nuevo más tarde...</i>',
+          icon: 'error',
+        });
       }
       throw error;
     }
   };
 
-  // Función para manejar el cambio en los inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name in usuario.persona) {
-      // Si el campo pertenece a la subestructura 'persona'
       setUsuario((prevState) => ({
         ...prevState,
         persona: {
@@ -76,7 +77,6 @@ const Register = ({ onLoginClick }) => {
         },
       }));
     } else {
-      // Para los campos en el nivel superior del objeto 'usuario'
       setUsuario((prevState) => ({
         ...prevState,
         [name]: value,
@@ -87,24 +87,32 @@ const Register = ({ onLoginClick }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    // Verificación de campos vacíos
     for (let key in usuario.persona) {
       if (!usuario.persona[key]) {
-        alert("Todos los campos de la persona son obligatorios.");
+        setMensajeError('Completa todos los campos...');
         return;
       }
     }
-    if (!usuario.nombre_usuario || !usuario.contrasenia || !usuario.cargo) {
-      alert("Todos los campos del usuario son obligatorios.");
+    if (!usuario.nombre_usuario || !usuario.contrasenia || !usuario.cargo || !usuario.repitaContrasenia) {
+      setMensajeError('Completa todos los campos...');
+      return;
+    }
+
+    if (usuario.contrasenia.length < 8) {
+      setMensajeError('La contraseña debe tener al menos 8 caracteres...');
+      return;
+    }
+
+    if (usuario.contrasenia !== usuario.repitaContrasenia) {
+      setMensajeError('Las contraseñas no coinciden...');
       return;
     }
 
     try {
       await validarDatos();
-      alert("Usuario creado exitosamente");
-      // Puedes redirigir al usuario o limpiar el formulario aquí si es necesario
+      setMensajeError('');
     } catch (error) {
-      // El manejo del error ya se hace en validarDatos
+      console.error(error);
     }
   };
 
@@ -113,6 +121,7 @@ const Register = ({ onLoginClick }) => {
       <img className="logo" src={logoUsuario} alt="LogoUsuario" />
       <p className="titulo">Crea un usuario</p>
       <p>Es rápido y fácil</p>
+      <p>¿Ya tienes cuenta? <a className="text-white" onClick={onLoginClick}>Inicia sesión</a></p>
       <form onSubmit={handleSubmit}>
         <div className="cajaTexto">
           <input
@@ -168,19 +177,16 @@ const Register = ({ onLoginClick }) => {
         />
         <input
           type="password"
-          className="contraseña"
+          className="contraseña mb-3"
           placeholder="Repita Contraseña"
-          name="repitaContraseña"
+          name="repitaContrasenia"
+          value={usuario.repitaContrasenia}
+          onChange={handleChange}
         />
-        <div className="botones">
-          <input type="submit" value="Regístrate" className="botonRegistrate" />
-          <input
-            type="button"
-            value="Regresar"
-            className="botonRegistrate"
-            onClick={onLoginClick}
-          />
-        </div>
+        {mensajeError && (
+          <p className="text-white mb-0 mt-2 fst-italic">{mensajeError}</p>
+        )}
+        <button type="submit" className="btnInicio btn btn-secondary mt-4 btn-lg pe-4 ps-4">Crear cuenta</button>
       </form>
     </div>
   );
