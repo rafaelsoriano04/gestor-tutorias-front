@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
+import TablaEstudiantes from './TablaEstudiantes';
 import './css/Principal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -53,6 +54,24 @@ function Principal() {
     navigate('/');
   };
 
+  let ListaEstudiantes = [
+    { id: 1, nombre: 'Juan Pérez',estado:'En proceso', porcentaje: 70, carrera: 'Software' },
+    { id: 2, nombre: 'Ana Sánchez',estado:'En proceso', porcentaje: 85, carrera: 'Industrial' },
+    { id: 3, nombre: 'Carlos García',estado:'En proceso', porcentaje: 90, carrera: 'Telecomunicaciones' },
+    { id: 4, nombre: 'María Rodríguez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
+    { id: 5, nombre: 'Pedro Gómez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
+    { id: 6, nombre: 'Laura Martínez',estado:'Graduado', porcentaje: 100, carrera: 'Industrial' },
+    { id: 7, nombre: 'Luis Torres',estado:'Dado de baja', porcentaje: 10, carrera: 'Telecomunicaciones' }
+  ];
+
+  const llenarEstudiantes = () => {
+
+    return ListaEstudiantes.map((estudiante) => (
+        <option key={estudiante.id}>{estudiante.nombre}</option>
+
+    ));
+  };
+
   return (
     <div>
       <nav className="navbar bg-custom">
@@ -71,9 +90,44 @@ function Principal() {
         </div>
       </nav>
 
-
+      <div className='contenedorFiltros'>
+      <p></p>
+      <label className="fw-bold">Estudiante:</label>
+          <select
+            className="filtro form-control bg-light border rounded"
+            id="prioridad"
+          >
+            {llenarEstudiantes()}
+          </select>
+          <label className="fw-bold">Estado:</label>
+          <select
+            className="filtro form-control bg-light border rounded"
+            id="prioridad"
+          >
+            <option>En proceso</option>
+            <option>Graduado</option>
+            <option>Dado de baja</option>
+          </select>
+          <label className="fw-bold">Carrera:</label>
+          <select
+            className="filtro form-control bg-light border rounded"
+            id="prioridad"
+          >
+            <option>Software</option>
+            <option>Industrial</option>
+            <option>Telecomunicaciones</option>
+            <option>Tecnologías de la Información</option>
+            <option>Robótica</option>
+          </select>
+      </div>
+      <div className='contenedorTabla'>
+        <TablaEstudiantes />
+      </div>
+      <div className='contenedorBotones'>
+        <button className="botonTabla">Asignar Estudiante</button>
+        <button className="botonTabla">Informes</button>
+      </div>
     </div>
-
   );
 }
 
