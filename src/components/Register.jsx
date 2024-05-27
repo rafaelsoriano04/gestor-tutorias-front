@@ -45,16 +45,16 @@ const Register = ({ onLoginClick }) => {
     try {
       const { data } = await axios.post("http://localhost:3000/docente", usuarioDTO);
       login(data.nombre_usuario, usuario.contrasenia);
-      return data.nombre_usuario;
-    } catch ({response}) {
-      console.log(response.data.message);
+      return true;
+    } catch ({ response }) {
       if (response.data.message === 'El nombre de usuario ya está en uso. Por favor, utiliza otro.')
-        setMensajeError(response.data.message);
+        setMensajeError('El nombre de usuario ya está en uso.');
       if (response.data.message === 'La cédula ya está en uso.')
         setMensajeError(response.data.message);
+      return false;
     }
   };
-  
+
 
 
 
@@ -78,7 +78,7 @@ const Register = ({ onLoginClick }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-  
+
     // Validación de campos completos en la sección de persona
     for (let key in usuario.persona) {
       if (!usuario.persona[key]) {
@@ -86,44 +86,40 @@ const Register = ({ onLoginClick }) => {
         return;
       }
     }
-  
+
     // Validación de campos completos generales
     if (!usuario.nombre_usuario || !usuario.contrasenia || !usuario.cargo || !usuario.repitaContrasenia) {
       setMensajeError('Completa todos los campos...');
       return;
     }
-  
+
     // Validación específica para el campo de identificación
     if (usuario.persona.identificacion.length !== 10) {
       setMensajeError('La identificación debe tener exactamente 10 dígitos.');
       return;
     }
-  
+
     // Validación de longitud mínima de contraseña
     if (usuario.contrasenia.length < 8) {
       setMensajeError('La contraseña debe tener al menos 8 caracteres...');
       return;
     }
-  
+
     // Validación de coincidencia de contraseñas
     if (usuario.contrasenia !== usuario.repitaContrasenia) {
       setMensajeError('Las contraseñas no coinciden...');
       return;
     }
-  
+
     // Intenta enviar los datos si todas las validaciones son exitosas
-    try {
-      const nombre_usuario = await validarDatos();
+    if (await validarDatos()) {
       Swal.fire({
-        html: `<i>Usuario creado, bienvenid@ ${nombre_usuario}</i>`,
+        html: `<i>Usuario creado, bienvenid@ ${usuario.nombre_usuario}</i>`,
         icon: 'success',
       });
-      onLoginClick();
-    } catch (error) {
-      console.error(error);
     }
   };
-  
+
 
   return (
     <div className="formulario">
