@@ -42,56 +42,16 @@ const Register = ({ onLoginClick }) => {
 
   const validarDatos = async () => {
     const { repitaContrasenia, ...usuarioDTO } = usuario;
-  
     try {
       const { data } = await axios.post("http://localhost:3000/docente", usuarioDTO);
       login(data.nombre_usuario, usuario.contrasenia);
-    } catch (error) {
-      if (error.response) {
-        const { status, data } = error.response;
-  
-        switch (status) {
-          case 400:  // Bad Request
-            setMensajeError('Completa todos los campos...');
-            break;
-          case 409:  // Conflict
-            Swal.fire({
-              title: 'Error',
-              html: 'El usuario ya está en uso. Por favor, utiliza otro.',
-              icon: 'error'
-            });
-            break;
-          case 500:  // Internal Server Error
-            Swal.fire({
-              title: 'Error',
-              html: '<i>Error interno del servidor. Inténtelo de nuevo más tarde.</i>',
-              icon: 'error',
-            });
-            break;
-          default:
-            // Manejar otros códigos de estado no especificados
-            Swal.fire({
-              title: 'Error',
-              html: `<i>${data.message || 'Error al conectar con el servidor.'}</i>`,
-              icon: 'error',
-            });
-        }
-      } else if (error.request) {
-        // La solicitud fue hecha pero no se recibió respuesta
-        Swal.fire({
-          title: 'Error',
-          html: '<i>No se pudo obtener respuesta del servidor.</i>',
-          icon: 'error',
-        });
-      } else {
-        // Algo sucedió al configurar la solicitud que disparó un error
-        Swal.fire({
-          title: 'Error',
-          html: '<i>Error al configurar la solicitud.</i>',
-          icon: 'error',
-        });
-      }
-      throw error;
+      return data.nombre_usuario;
+    } catch ({response}) {
+      console.log(response.data.message);
+      if (response.data.message === 'El nombre de usuario ya está en uso. Por favor, utiliza otro.')
+        setMensajeError(response.data.message);
+      if (response.data.message === 'La cédula ya está en uso.')
+        setMensajeError(response.data.message);
     }
   };
   
@@ -153,8 +113,12 @@ const Register = ({ onLoginClick }) => {
   
     // Intenta enviar los datos si todas las validaciones son exitosas
     try {
-      await validarDatos();
-      setMensajeError('');
+      const nombre_usuario = await validarDatos();
+      Swal.fire({
+        html: `<i>Usuario creado, bienvenid@ ${nombre_usuario}</i>`,
+        icon: 'success',
+      });
+      onLoginClick();
     } catch (error) {
       console.error(error);
     }
