@@ -41,30 +41,62 @@ const Register = ({ onLoginClick }) => {
   };
 
   const validarDatos = async () => {
-    const { repitaContrasenia, ...usuarioDTO } = usuario
-
+    const { repitaContrasenia, ...usuarioDTO } = usuario;
+  
     try {
       const { data } = await axios.post("http://localhost:3000/docente", usuarioDTO);
       login(data.nombre_usuario, usuario.contrasenia);
     } catch (error) {
       if (error.response) {
-        if (error.response.status === 400) {
-          setMensajeError('Completa todos los campos...');
-        } else {
-          Swal.fire({
-            html: '<i>Error al conectar con el servidor, inténtelo de nuevo más tarde...</i>',
-            icon: 'error',
-          });
+        const { status, data } = error.response;
+  
+        switch (status) {
+          case 400:  // Bad Request
+            setMensajeError('Completa todos los campos...');
+            break;
+          case 409:  // Conflict
+            Swal.fire({
+              title: 'Error',
+              html: 'El usuario ya está en uso. Por favor, utiliza otro.',
+              icon: 'error'
+            });
+            break;
+          case 500:  // Internal Server Error
+            Swal.fire({
+              title: 'Error',
+              html: '<i>Error interno del servidor. Inténtelo de nuevo más tarde.</i>',
+              icon: 'error',
+            });
+            break;
+          default:
+            // Manejar otros códigos de estado no especificados
+            Swal.fire({
+              title: 'Error',
+              html: `<i>${data.message || 'Error al conectar con el servidor.'}</i>`,
+              icon: 'error',
+            });
         }
-      } else {
+      } else if (error.request) {
+        // La solicitud fue hecha pero no se recibió respuesta
         Swal.fire({
-          html: '<i>Error al conectar con el servidor, inténtelo de nuevo más tarde...</i>',
+          title: 'Error',
+          html: '<i>No se pudo obtener respuesta del servidor.</i>',
+          icon: 'error',
+        });
+      } else {
+        // Algo sucedió al configurar la solicitud que disparó un error
+        Swal.fire({
+          title: 'Error',
+          html: '<i>Error al configurar la solicitud.</i>',
           icon: 'error',
         });
       }
       throw error;
     }
   };
+  
+
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,28 +118,40 @@ const Register = ({ onLoginClick }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
+    // Validación de campos completos en la sección de persona
     for (let key in usuario.persona) {
       if (!usuario.persona[key]) {
         setMensajeError('Completa todos los campos...');
         return;
       }
     }
+  
+    // Validación de campos completos generales
     if (!usuario.nombre_usuario || !usuario.contrasenia || !usuario.cargo || !usuario.repitaContrasenia) {
       setMensajeError('Completa todos los campos...');
       return;
     }
-
+  
+    // Validación específica para el campo de identificación
+    if (usuario.persona.identificacion.length !== 10) {
+      setMensajeError('La identificación debe tener exactamente 10 dígitos.');
+      return;
+    }
+  
+    // Validación de longitud mínima de contraseña
     if (usuario.contrasenia.length < 8) {
       setMensajeError('La contraseña debe tener al menos 8 caracteres...');
       return;
     }
-
+  
+    // Validación de coincidencia de contraseñas
     if (usuario.contrasenia !== usuario.repitaContrasenia) {
       setMensajeError('Las contraseñas no coinciden...');
       return;
     }
-
+  
+    // Intenta enviar los datos si todas las validaciones son exitosas
     try {
       await validarDatos();
       setMensajeError('');
@@ -115,6 +159,7 @@ const Register = ({ onLoginClick }) => {
       console.error(error);
     }
   };
+  
 
   return (
     <div className="formulario">
