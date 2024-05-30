@@ -6,7 +6,7 @@ import imgInicio from "./assets/inicio.png";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import Principal from "./components/Principal";  
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './routes/PrivateRoute';
 
 
 function App() {

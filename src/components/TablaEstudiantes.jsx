@@ -1,28 +1,64 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const TablaEstudiantes = () => {
-  // Lista de estudiantes
-  let ListaEstudiantes = [
-    { id: 1, nombre: 'Juan Pérez',estado:'En proceso', porcentaje: 70, carrera: 'Software' },
-    { id: 2, nombre: 'Ana Sánchez',estado:'En proceso', porcentaje: 85, carrera: 'Software' },
-    { id: 3, nombre: 'Carlos García',estado:'En proceso', porcentaje: 90, carrera: 'Software' },
-    { id: 4, nombre: 'María Rodríguez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
-    { id: 5, nombre: 'Pedro Gómez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
-    { id: 6, nombre: 'Laura Martínez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
-    { id: 7, nombre: 'Luis Torres',estado:'Dado de baja', porcentaje: 10, carrera: 'Software' }
-  ];
-  // mostrarEstudiantes .map td
+const TablaEstudiantes = ({id_docente}) => {
 
-  const mostrarEstudiantes = () => {
+  const [estudiantes, setEstudiantes] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [ordenarPor, setOrdenarPor] = useState("");
+  const [paginaActual, setPaginaActual] = useState(1);
+  const [itemsPorPagina, setItemsPorPagina] = useState(10);
+  const [estudiantesOrdenados, setEstudiantesOrdenados] = useState([]);
 
-    return ListaEstudiantes.map((estudiante) => (
-      <tr key={estudiante.id}>
-        <td>{estudiante.id}</td>
+  useEffect(() => {
+    console.log(id_docente);
+    getEstudiantes();
+  }, []);
+
+  const getEstudiantes = async () => {
+    try {
+      const resp = await axios.get(`http://localhost:3000/estudiante/${id_docente}`);
+      console.log(resp.data);
+      setEstudiantes(resp.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const paginate = (pageNumber) => setPaginaActual(pageNumber);
+
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(estudiantes.length / itemsPorPagina); i++) {
+    pageNumbers.push(i);
+  }
+
+  const handleRowClick = (id) => {
+    setSelectedRow(id);
+  };
+
+  const cargarEstudiantes = () => {
+    const ultimoItem = paginaActual * itemsPorPagina;
+    const primerItem = ultimoItem - itemsPorPagina;
+    return estudiantes.slice(primerItem, ultimoItem).map((estudiante, index) => (
+      <tr
+        key={estudiante.id}
+        className={estudiante.id === selectedRow ? "table-active" : ""}
+        onClick={() => handleRowClick(estudiante.id)}
+        style={{ cursor: "pointer" }}
+      >
+        <th scope="row">{primerItem + index + 1}</th>
+        <td>{estudiante.cedula}</td>
         <td>{estudiante.nombre}</td>
+        <td>{estudiante.fechaAprobacion}</td>
         <td>{estudiante.estado}</td>
-        <td>{estudiante.porcentaje}%</td>
+        <td>
+          <progress value={estudiante.porcentaje} max="100"></progress>
+          <span style={{ marginLeft: '10px' }}>{estudiante.porcentaje}%</span>
+        </td>
         <td>{estudiante.carrera}</td>
       </tr>
+
     ));
   };
 
@@ -32,44 +68,42 @@ const TablaEstudiantes = () => {
       <div className="row justify-content-center">
         <div className="col-12">
           <table className="table table-striped">
-            <thead className="bg-danger">
-            <tr>
-                <th>#</th>
-                <th>Estudiante</th>
-                <th>Estado</th>
-                <th>Porcentaje</th>
-                <th>Carrera</th>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Cédula</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Aprobación</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Porcentaje</th>
+                <th scope="col">Carrera</th>
               </tr>
             </thead>
-            <tbody>{mostrarEstudiantes()}</tbody>
+            <tbody>{cargarEstudiantes()}</tbody>
           </table>
+          <nav className="d-flex justify-content-between align-items-center">
+              <ul className="pagination mb-0">
+                {pageNumbers.map((number) => (
+                  <li key={number} className="page-item">
+                    <a onClick={() => paginate(number)} href="#" className="page-link">
+                      {number}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div>
+                <select onChange={(e) => setItemsPorPagina(parseInt(e.target.value))} value={itemsPorPagina} className="form-select">
+                  <option value={5}>5 por página</option>
+                  <option value={10}>10 por página</option>
+                  <option value={20}>20 por página</option>
+                  <option value={50}>50 por página</option>
+                </select>
+              </div>
+            </nav>
         </div>
       </div>
     </div>
   );
 };
-
-  /*
-  const showFormularios = () => {
-    const ultimoItem = paginaActual * itemsPorPagina;
-    const primerItem = ultimoItem - itemsPorPagina;
-    return formulariosOrdenados
-      .slice(primerItem, ultimoItem)
-      .map((estudiate, index) => (
-        <tr
-          key={form.id}
-          className={form.id === selectedRow ? "table-active" : ""}
-          onClick={() => handleRowClick(form.id)}
-          style={{ cursor: "pointer" }}
-        >
-          <th scope="row">{index + 1}</th>
-          <td>{form.n}</td>
-          <td>{form.nombre_solicitante}</td>
-          <td>{form.fecha_solicitud}</td>
-          <td>{form.prioridad}</td>
-          <td>{form.estado}</td>
-        </tr>
-      ));
-  };*/
 
 export default TablaEstudiantes;
