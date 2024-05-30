@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { jwtDecode } from "jwt-decode";
 
-const TablaEstudiantes = ({id_docente}) => {
+const TablaEstudiantes = ({id_docente,refresh}) => {
 
   const [estudiantes, setEstudiantes] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -18,7 +18,7 @@ const TablaEstudiantes = ({id_docente}) => {
   useEffect(() => {
 
     getEstudiantes();
-  }, []);
+  }, [refresh]);
 
   const getEstudiantes = async () => {
     try {
