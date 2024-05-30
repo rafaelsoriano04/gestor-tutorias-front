@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 
 const TablaEstudiantes = ({id_docente}) => {
 
@@ -10,16 +11,26 @@ const TablaEstudiantes = ({id_docente}) => {
   const [paginaActual, setPaginaActual] = useState(1);
   const [itemsPorPagina, setItemsPorPagina] = useState(10);
   const [estudiantesOrdenados, setEstudiantesOrdenados] = useState([]);
+  const token = localStorage.getItem('jwtToken');
+  
+  let decoded;
 
   useEffect(() => {
-    console.log(id_docente);
+
     getEstudiantes();
   }, []);
 
   const getEstudiantes = async () => {
     try {
+      decoded = jwtDecode(token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      handleNavigation(); 
+    }
+    id_docente = decoded.id;
+
+    try {
       const resp = await axios.get(`http://localhost:3000/estudiante/${id_docente}`);
-      console.log(resp.data);
       setEstudiantes(resp.data);
     } catch (error) {
       console.log(error);

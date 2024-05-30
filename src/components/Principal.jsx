@@ -13,18 +13,20 @@ function Principal() {
   const [persona, setPersona] = useState({});
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  // Decodificar el token
   const token = localStorage.getItem('jwtToken');
+  
   let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (error) {
-    console.error('Error decoding token:', error);
-    handleNavigation(); // Navegar a la página de login si hay un error con el token
-  }
 
   const obtenerDocente = async (id) => {
+    
+    try {
+      decoded = jwtDecode(token);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      handleNavigation(); // Navegar a la página de login si hay un error con el token
+    }
+
+    
     try {
       const response = await axios.get(`http://localhost:3000/docente/${id}`);
       setId_docente(decoded.id)
@@ -61,7 +63,7 @@ function Principal() {
       <nav className="navbar bg-custom">
         <div className="container-fluid d-flex justify-content-between">
           <span className="navbar-text text-custom">
-            Bienvenido {persona.nombre} {persona.apellido}
+            Universidad Técnica de Ambato {persona.nombre} {persona.apellido}
           </span>
           <div
             className="d-flex align-items-center text-custom logout"
