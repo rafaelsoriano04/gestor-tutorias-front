@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
-import TablaEstudiantes from './TablaEstudiantes';
+import TablaEstudiantes from './Estudiantes';
 import './css/Principal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -76,10 +76,6 @@ function Principal() {
         </div>
       </nav>
       <TablaEstudiantes id_docente={id_docente}/>
-      <div className='contenedorBotones'>
-        <button className="botonTabla">Asignar Estudiante</button>
-        <button className="botonTabla">Informes</button>
-      </div>
     </div>
   );
 }
