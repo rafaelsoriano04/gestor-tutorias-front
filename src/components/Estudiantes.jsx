@@ -12,7 +12,7 @@ const TablaEstudiantes = ({id_docente,refresh}) => {
   const [itemsPorPagina, setItemsPorPagina] = useState(10);
   const [estudiantesOrdenados, setEstudiantesOrdenados] = useState([]);
   const token = localStorage.getItem('jwtToken');
-  
+
   let decoded;
 
   useEffect(() => {
@@ -25,7 +25,7 @@ const TablaEstudiantes = ({id_docente,refresh}) => {
       decoded = jwtDecode(token);
     } catch (error) {
       console.error('Error decoding token:', error);
-      handleNavigation(); 
+      handleNavigation();
     }
     id_docente = decoded.id;
 
@@ -54,7 +54,7 @@ const TablaEstudiantes = ({id_docente,refresh}) => {
     return estudiantes.slice(primerItem, ultimoItem).map((estudiante, index) => (
       <tr
         key={estudiante.id}
-        className={estudiante.id === selectedRow ? "table-active" : ""}
+        className={estudiante.id === selectedRow ? "table-uta" : ""}
         onClick={() => handleRowClick(estudiante.id)}
         style={{ cursor: "pointer" }}
       >
@@ -63,9 +63,19 @@ const TablaEstudiantes = ({id_docente,refresh}) => {
         <td>{estudiante.nombre}</td>
         <td>{estudiante.fechaAprobacion}</td>
         <td>{estudiante.estado}</td>
-        <td>
-          <progress value={estudiante.porcentaje} max="100"></progress>
-          <span style={{ marginLeft: '10px' }}>{estudiante.porcentaje}%</span>
+        <td className="align-middle">
+          <div className="progress">
+            <div
+              className="progress-bar progress-bar-animated progress-bar-striped"
+              role="progressbar"
+              style={{ width: `${estudiante.porcentaje}%` }}
+              aria-valuenow={estudiante.porcentaje}
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              {estudiante.porcentaje}%
+            </div>
+          </div>
         </td>
         <td>{estudiante.carrera}</td>
       </tr>
@@ -75,11 +85,12 @@ const TablaEstudiantes = ({id_docente,refresh}) => {
 
 
   return (
-    <div className="container">
+    <div className="container mt-5">
       <div className="row justify-content-center">
-        <div className="col-12">
-          <table className="table table-striped">
-            <thead>
+        <div className="col-12 table-responsive">
+          <p className="fs-3 fw-bold">Estudiantes:</p>
+          <table className="table table-hover table-bordered">
+            <thead className="table-primary">
               <tr>
                 <th scope="col">#</th>
                 <th scope="col">Cédula</th>
@@ -93,24 +104,29 @@ const TablaEstudiantes = ({id_docente,refresh}) => {
             <tbody>{cargarEstudiantes()}</tbody>
           </table>
           <nav className="d-flex justify-content-between align-items-center">
-              <ul className="pagination mb-0">
-                {pageNumbers.map((number) => (
-                  <li key={number} className="page-item">
-                    <a onClick={() => paginate(number)} href="#" className="page-link">
-                      {number}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-              <div>
-                <select onChange={(e) => setItemsPorPagina(parseInt(e.target.value))} value={itemsPorPagina} className="form-select">
-                  <option value={5}>5 por página</option>
-                  <option value={10}>10 por página</option>
-                  <option value={20}>20 por página</option>
-                  <option value={50}>50 por página</option>
-                </select>
-              </div>
-            </nav>
+            <ul className="pagination mb-0">
+              {pageNumbers.map((number) => (
+                <li key={number} className="page-item">
+                  <a onClick={() => paginate(number)} href="#" className="page-link">
+                    {number}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div>
+              <select onChange={(e) => setItemsPorPagina(parseInt(e.target.value))} value={itemsPorPagina} className="form-select">
+                <option value={5}>5 por página</option>
+                <option value={10}>10 por página</option>
+                <option value={20}>20 por página</option>
+                <option value={50}>50 por página</option>
+              </select>
+            </div>
+          </nav>
+        </div>
+      </div>
+      <div className="row justify-content-center">
+        <div className="col-auto">
+          <button className="btn btn-primary">Nuevo Estudiante</button>
         </div>
       </div>
     </div>

@@ -8,7 +8,7 @@ import Register from "./components/Register.jsx";
 import Principal from "./components/Principal";  
 import Informe from "./components/Informe.jsx";  
 import PrivateRoute from './routes/PrivateRoute';
-
+import "./styles/main.scss"
 
 function App() {
   // Estado para controlar la visualización de Login o Register

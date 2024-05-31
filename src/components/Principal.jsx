@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
-import TablaEstudiantes from './TablaEstudiantes';
+import TablaEstudiantes from './Estudiantes';
 import './css/Principal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
