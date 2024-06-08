@@ -1,132 +1,176 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
-import TablaEstudiantes from './TablaEstudiantes';
+import TablaEstudiantes from './Estudiantes';
 import './css/Principal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
+import { Modal, Button, Form } from 'react-bootstrap'; 
+import Swal from "sweetalert2";
 
 function Principal() {
   const [userName, setUserName] = useState('');
+  const [id_docente, setId_docente] = useState('');
   const [persona, setPersona] = useState({});
   const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-
-  // Decodificar el token
   const token = localStorage.getItem('jwtToken');
-  let decoded;
-  try {
-    decoded = jwtDecode(token);
-  } catch (error) {
-    console.error('Error decoding token:', error);
-    handleNavigation(); // Navegar a la página de login si hay un error con el token
-  }
+  const [refreshTable, setRefreshTable] = useState(false);
+
 
   const obtenerDocente = async (id) => {
     try {
       const response = await axios.get(`http://localhost:3000/docente/${id}`);
-      return response.data;
+      if (response.data) {
+        setPersona(response.data.persona);
+        setUserName(response.data.persona.nombre); // Asumiendo que la respuesta tiene este formato
+      }
     } catch (error) {
-      console.log(error.response ? error.response.data.message : error.message);
-      throw error;
+      console.error('Error fetching docente:', error);
+      setError(error);
+      handleNavigation();
     }
   };
 
-  //asignar los datos de la persona, aqui se obtiene la informacion de la persona docente
   useEffect(() => {
-    if (decoded?.id) {
-      obtenerDocente(decoded.id)
-        .then((docente) => {
-          setUserName(docente.persona.nombre);
-          setPersona(docente.persona);
-        })
-        .catch((error) => {
-          setError(error);
-          handleNavigation();
-        });
+    let decoded;
+    try {
+      decoded = jwtDecode(token);
+      if (decoded?.id) {
+        setId_docente(decoded.id);
+        obtenerDocente(decoded.id);
+      }
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      handleNavigation();
     }
-  }, [decoded]);
-
+  }, [token]); // Dependencia sobre token
 
   const handleNavigation = () => {
     localStorage.removeItem('jwtToken');
     navigate('/');
   };
 
-  let ListaEstudiantes = [
-    { id: 1, nombre: 'Juan Pérez',estado:'En proceso', porcentaje: 70, carrera: 'Software' },
-    { id: 2, nombre: 'Ana Sánchez',estado:'En proceso', porcentaje: 85, carrera: 'Industrial' },
-    { id: 3, nombre: 'Carlos García',estado:'En proceso', porcentaje: 90, carrera: 'Telecomunicaciones' },
-    { id: 4, nombre: 'María Rodríguez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
-    { id: 5, nombre: 'Pedro Gómez',estado:'Graduado', porcentaje: 100, carrera: 'Software' },
-    { id: 6, nombre: 'Laura Martínez',estado:'Graduado', porcentaje: 100, carrera: 'Industrial' },
-    { id: 7, nombre: 'Luis Torres',estado:'Dado de baja', porcentaje: 10, carrera: 'Telecomunicaciones' }
-  ];
+  const handleCloseModal = () => setShowModal(false);
+  const handleShowModal = () => setShowModal(true);
 
-  const llenarEstudiantes = () => {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const studentData = {
+      fecha_aprobacion: formData.get('fechaAprobacion'),
+      carrera: formData.get('carrera'),
+      tema: formData.get('tema'),
+      estado: "Activo",
+      porcentaje: 0,
+      id_docente: id_docente,
+      persona: {
+        identificacion: formData.get('identificacion'),
+        nombre: formData.get('nombre'),
+        apellido: formData.get('apellido'),
+        telefono: "00000",
+        email: formData.get('correoElectronico')
+      }
+    };
+    console.log(studentData);
+    try {
+      const response = await axios.post('http://localhost:3000/estudiante', studentData);
+      console.log('Estudiante creado:', response.data);
+      Swal.fire({
+        html: '<i>Estudiante Asignado Correctamente</i>',
+        icon: 'success',
+      });
+      handleCloseModal();
+      setRefreshTable(prev => !prev);
+    } catch (error) {
+      /*
+      CONTROLAR LOS ERRORES DE CEDULA DUPLICADA PARA QUE NO SE CAIGA EN EL BACK
+      Y MUESTRE EL MENSAJE EN EL FRONT
+      Swal.fire({
+        html: '<i>Error al c</i>',
+        icon: 'error',
+      });
+      setError('Error al crear estudiante.');*/
 
-    return ListaEstudiantes.map((estudiante) => (
-        <option key={estudiante.id}>{estudiante.nombre}</option>
-
-    ));
+    }
   };
+  
 
   return (
     <div>
       <nav className="navbar bg-custom">
         <div className="container-fluid d-flex justify-content-between">
-          <span className="navbar-text text-custom">
-            Bienvenido {persona.nombre} {persona.apellido}
+          <span className="navbar-text text-white">
+            Universidad Técnica de Ambato
           </span>
           <div
             className="d-flex align-items-center text-custom logout"
             style={{ cursor: 'pointer' }}
             onClick={handleNavigation}
           >
+            <span className="logout-text ms-2 pe-3">{persona.nombre} {persona.apellido}</span>
             <i className="fas fa-user mr-2"></i>
-            <span className="logout-text ms-2">Cerrar sesión</span>
+            
           </div>
         </div>
       </nav>
 
-      <div className='contenedorFiltros'>
-      <p></p>
-      <label className="fw-bold">Estudiante:</label>
-          <select
-            className="filtro form-control bg-light border rounded"
-            id="prioridad"
-          >
-            {llenarEstudiantes()}
-          </select>
-          <label className="fw-bold">Estado:</label>
-          <select
-            className="filtro form-control bg-light border rounded"
-            id="prioridad"
-          >
-            <option>En proceso</option>
-            <option>Graduado</option>
-            <option>Dado de baja</option>
-          </select>
-          <label className="fw-bold">Carrera:</label>
-          <select
-            className="filtro form-control bg-light border rounded"
-            id="prioridad"
-          >
-            <option>Software</option>
-            <option>Industrial</option>
-            <option>Telecomunicaciones</option>
-            <option>Tecnologías de la Información</option>
-            <option>Robótica</option>
-          </select>
+      <TablaEstudiantes id_docente={id_docente} refresh={refreshTable} />
+
+      <div className="row justify-content-center">
+        <div className="col-auto">
+          <button className="btn btn-primary" onClick={handleShowModal}>Nuevo Estudiante</button>
+        </div>
       </div>
-      <div className='contenedorTabla'>
-        <TablaEstudiantes />
-      </div>
-      <div className='contenedorBotones'>
-        <button className="botonTabla">Asignar Estudiante</button>
-        <button className="botonTabla">Informes</button>
-      </div>
+
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Asignar Estudiante</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicNombre">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control type="text" placeholder="Ingrese el nombre" name="nombre" required />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicApellido">
+              <Form.Label>Apellido</Form.Label>
+              <Form.Control type="text" placeholder="Ingrese el apellido" name="apellido" required />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicIdentificacion">
+              <Form.Label>Identificación</Form.Label>
+              <Form.Control type="text" placeholder="Ingrese la identificación" name="identificacion" required />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicCarrera">
+              <Form.Label>Carrera</Form.Label>
+              <Form.Control as="select" placeholder='Seleccione Una Opcion' name="carrera" required>
+                <option>Ingeniería en Software</option>
+                <option>Ingeniería en Telecomunicaciones</option>
+                <option>Ingeniería Industrial</option>
+                <option>Ingeniería en Automatización y Robótica</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicTema">
+              <Form.Label>Tema</Form.Label>
+              <Form.Control type="text" placeholder="Ingrese el tema" name="tema" required />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicFechaAprobacion">
+              <Form.Label>Fecha Aprobación</Form.Label>
+              <Form.Control type="date" name="fechaAprobacion" required />
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicCorreoElectronico">
+              <Form.Label>Correo Electrónico</Form.Label>
+              <Form.Control type="email" placeholder="Ingrese el correo electrónico" name="correoElectronico" required />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Asignar
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
     </div>
   );
 }

@@ -1,5 +1,4 @@
-// src/components/Login.jsx
-import React, { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import "./css/Login.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -7,6 +6,7 @@ import logoUsuario from "../assets/logoUsuario.png"
 import { useNavigate } from 'react-router-dom';
 
 
+// eslint-disable-next-line react/prop-types
 function Login({ onRegisterClick }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -80,7 +80,7 @@ function Login({ onRegisterClick }) {
       <p className="mt-3">
         <a className="link-underline-light link-offset-2 text-white">Olvidé mi contraseña</a>
       </p>
-      <button type="submit" className="btnInicio btn btn-secondary mt-3 btn-lg pe-4 ps-4">Iniciar sesión</button>
+      <button type="submit" className="btnInicio btn btn-light mt-3 btn-lg pe-4 ps-4">Iniciar sesión</button>
     </form>
   );
 }

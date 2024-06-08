@@ -1,37 +1,45 @@
-:root{
-    --bg-color:#9B2B2B;
+:root {
+    --bg-color: #9B2B2B;
     --text-color: white;
-    --secod-color:#737373;
+    --secod-color: #737373;
     --tipo-letra: Gadugi
-  }
+}
 
 .bg-custom {
     background-color: #9B2B2B;
 }
-.navbar-text{
+
+.navbar-text {
     padding-left: 2%;
     color: white;
     font-size: 1.5rem;
 }
+
 .logout .fa-user {
-    color: white; /* Color del icono */
-    font-size: 2rem; /* Ajusta el tamaño del icono según tus necesidades */
+    color: white;
+    /* Color del icono */
+    font-size: 2rem;
+    /* Ajusta el tamaño del icono según tus necesidades */
 }
 
 .logout-text {
-    color: white; /* Color del texto */
-    font-size: 1rem; /* Ajusta el tamaño del texto según tus necesidades */
+    color: white;
+    /* Color del texto */
+    font-size: 1rem;
+    /* Ajusta el tamaño del texto según tus necesidades */
 }
 
-.contenedorTabla{
+.contenedorTabla {
     margin-top: 30px;
 }
-.contenedorBotones{
+
+.contenedorBotones {
     width: 100%;
     margin-top: 20px;
     text-align: center;
 }
-.botonTabla{
+
+.botonTabla {
     border-radius: 20px;
     width: 10rem;
     height: 3rem;
@@ -45,21 +53,15 @@
     border: none;
 }
 
-.botonTabla:hover{
-    box-shadow: 0 0 5px white;
-    transform: scale(1.1);
-    transition: 0.7s ease;
-    background-color: var(--bg-color);
-}
 
-
-.contenedorFiltros{
+.contenedorFiltros {
     display: flex;
     padding-top: 2rem;
     padding-left: 16rem;
     font-size: 20px;
 }
-.filtro{
+
+.filtro {
     width: 15rem;
     margin-right: 2rem;
 }

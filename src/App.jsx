@@ -6,8 +6,9 @@ import imgInicio from "./assets/inicio.png";
 import Login from "./components/Login.jsx";
 import Register from "./components/Register.jsx";
 import Principal from "./components/Principal";  
-import PrivateRoute from './components/PrivateRoute';
-
+import Informe from "./components/Informe.jsx";  
+import PrivateRoute from './routes/PrivateRoute';
+import "./styles/main.scss"
 
 function App() {
   // Estado para controlar la visualización de Login o Register
@@ -18,8 +19,9 @@ function App() {
     return showLogin ? 
       <Login onRegisterClick={() => setShowLogin(false)} /> : 
       <Register onLoginClick={() => setShowLogin(true)} />;
+      
   };
-
+  
   return (
     <Router>
       <Routes>
@@ -39,6 +41,9 @@ function App() {
         }/>
         <Route element={<PrivateRoute />}>
           <Route path="/principal" element={<Principal/>} />
+        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route path="/informe" element={<Informe/>} />
         </Route>
       </Routes>
     </Router>
