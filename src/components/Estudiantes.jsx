@@ -2,9 +2,10 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
-const TablaEstudiantes = ({ id_docente, refresh }) => {
+const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
     const token = localStorage.getItem("jwtToken");
 
     const [estudiantes, setEstudiantes] = useState([]);
@@ -14,7 +15,7 @@ const TablaEstudiantes = ({ id_docente, refresh }) => {
     const [filtroEstado, setFiltroEstado] = useState("");
     const [filtroCarrera, setFiltroCarrera] = useState("");
     const [filtroNombreCedula, setFiltroNombreCedula] = useState("");
-
+    
     let decoded;
 
     useEffect(() => {
@@ -30,7 +31,7 @@ const TablaEstudiantes = ({ id_docente, refresh }) => {
             // handleNavigation();
         }
         id_docente = decoded.id;
-
+        
         try {
             const resp = await axios.get(
                 `http://localhost:3000/estudiante/${id_docente}`
@@ -48,9 +49,11 @@ const TablaEstudiantes = ({ id_docente, refresh }) => {
     for (let i = 1; i <= Math.ceil(estudiantes.length / itemsPorPagina); i++) {
         pageNumbers.push(i);
     }
+    
 
     const handleRowClick = (id) => {
         setSelectedRow(id);
+        onStudentSelect(id);
     };
 
     const handleSearch = (e) => {

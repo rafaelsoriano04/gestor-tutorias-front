@@ -43,7 +43,7 @@ function App() {
           <Route path="/principal" element={<Principal/>} />
         </Route>
         <Route element={<PrivateRoute />}>
-          <Route path="/informe" element={<Informe/>} />
+          <Route path="/informes/:idEstudiante" element={<Informe/>} />
         </Route>
       </Routes>
     </Router>

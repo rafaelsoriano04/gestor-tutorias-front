@@ -8,6 +8,7 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap'; 
 import Swal from "sweetalert2";
+import Informe from './Informe';
 
 function Principal() {
   const [userName, setUserName] = useState('');
@@ -18,7 +19,20 @@ function Principal() {
   const navigate = useNavigate();
   const token = localStorage.getItem('jwtToken');
   const [refreshTable, setRefreshTable] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [showInforme, setShowInforme] = useState(false);
 
+
+  const handleShowInforme = () => {
+    if (selectedStudentId) {
+      navigate(`/informes/${selectedStudentId}`);
+    } else {
+      alert("Por favor seleccione un estudiante de la tabla primero.");
+    }
+  };
+const handleStudentSelect = (id) => {
+  setSelectedStudentId(id);
+};
 
   const obtenerDocente = async (id) => {
     try {
@@ -52,6 +66,8 @@ function Principal() {
     localStorage.removeItem('jwtToken');
     navigate('/');
   };
+
+
 
   const handleCloseModal = () => setShowModal(false);
   const handleShowModal = () => setShowModal(true);
@@ -117,11 +133,17 @@ function Principal() {
         </div>
       </nav>
 
-      <TablaEstudiantes id_docente={id_docente} refresh={refreshTable} />
+      <TablaEstudiantes id_docente={id_docente} refresh={refreshTable} navigate={navigate} onStudentSelect={handleStudentSelect} />
+
+
 
       <div className="row justify-content-center">
         <div className="col-auto">
           <button className="btn btn-primary" onClick={handleShowModal}>Nuevo Estudiante</button>
+        </div>
+        <div className="col-auto">
+        <button className="btn btn-primary" onClick={handleShowInforme}>Informes</button>
+        {showInforme && <Informe idEstudiante={selectedStudentId} />}
         </div>
       </div>
 

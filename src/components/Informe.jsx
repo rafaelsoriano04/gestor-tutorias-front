@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-function Informe({idEstudiante}) {
+import { useNavigate, useParams } from 'react-router-dom';
+import './css/Informe.css';
+function Informe() {
     const navigate = useNavigate();
+    const { idEstudiante } = useParams();
     const handleNavigation = () => {
         localStorage.removeItem('jwtToken');
         navigate('/');
@@ -27,6 +29,7 @@ function Informe({idEstudiante}) {
       </nav>
       {/*AQUI SE LLAMA A LA TABLA, TOMAR COMO EJEMPLO A PRINCIPAL PARA SABER COMO SE LLAMA A LA TABLA
       ENVIAR EL PARAMETRO QUE SE OBTIENE DEL CONTRUCTOR COMO idEstudiantes  */}
+      ESTOY EN INFORMES
     </div>
     );
 }
