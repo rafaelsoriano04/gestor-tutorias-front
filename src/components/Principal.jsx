@@ -102,24 +102,29 @@ function Principal() {
     <div>
       <nav className="navbar bg-custom">
         <div className="container-fluid d-flex justify-content-between">
-          <span className="navbar-text text-custom">
-            Universidad Técnica de Ambato {persona.nombre} {persona.apellido}
+          <span className="navbar-text text-white">
+            Universidad Técnica de Ambato
           </span>
           <div
             className="d-flex align-items-center text-custom logout"
             style={{ cursor: 'pointer' }}
             onClick={handleNavigation}
           >
+            <span className="logout-text ms-2 pe-3">{persona.nombre} {persona.apellido}</span>
             <i className="fas fa-user mr-2"></i>
-            <span className="logout-text ms-2">Cerrar sesión</span>
+            
           </div>
         </div>
       </nav>
+
       <TablaEstudiantes id_docente={id_docente} refresh={refreshTable} />
-      <div className='contenedorBotones'>
-        <button className="botonTabla" onClick={handleShowModal}>Asignar Estudiante</button>
-        <button className="botonTabla">Informes</button>
+
+      <div className="row justify-content-center">
+        <div className="col-auto">
+          <button className="btn btn-primary" onClick={handleShowModal}>Nuevo Estudiante</button>
+        </div>
       </div>
+
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Asignar Estudiante</Modal.Title>
@@ -145,7 +150,7 @@ function Principal() {
                 <option>Ingeniería en Software</option>
                 <option>Ingeniería en Telecomunicaciones</option>
                 <option>Ingeniería Industrial</option>
-                <option>Ingeniería en Automatización y Robotica</option>
+                <option>Ingeniería en Automatización y Robótica</option>
               </Form.Control>
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicTema">
@@ -160,12 +165,13 @@ function Principal() {
               <Form.Label>Correo Electrónico</Form.Label>
               <Form.Control type="email" placeholder="Ingrese el correo electrónico" name="correoElectronico" required />
             </Form.Group>
-            <Button variant="danger" type="submit">
+            <Button variant="primary" type="submit">
               Asignar
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
+
     </div>
   );
 }
