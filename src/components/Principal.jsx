@@ -28,10 +28,10 @@ function Principal() {
 
   const handleShowInforme = () => {
     if (selectedStudentId) {
+      localStorage.setItem('idPersona', selectedStudentId);
       navigate(`/informes/${selectedStudentId}`);
     } else {
       
-
       Swal.fire({
         title: "Seleccione un estudiante de la lista!",
         icon: "error",
