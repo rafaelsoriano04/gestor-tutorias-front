@@ -3,7 +3,9 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import './css/Informe.css';
 import TablaInformes from './TablaInformes';
-function Informe() {
+
+
+function FormatoInforme() {
     const navigate = useNavigate();
     const { idEstudiante } = useParams();
     const handleNavigation = () => {
@@ -34,4 +36,4 @@ function Informe() {
     );
 }
 
-export default Informe;
+export default FormatoInforme;

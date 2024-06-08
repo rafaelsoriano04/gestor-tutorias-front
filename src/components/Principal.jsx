@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
 import TablaEstudiantes from './Estudiantes';
+
 import './css/Principal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +9,9 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap'; 
 import Swal from "sweetalert2";
+import Informe from './Informe';
+
+
 
 function Principal() {
   const [userName, setUserName] = useState('');
@@ -18,7 +22,27 @@ function Principal() {
   const navigate = useNavigate();
   const token = localStorage.getItem('jwtToken');
   const [refreshTable, setRefreshTable] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [showInforme, setShowInforme] = useState(false);
 
+
+  const handleShowInforme = () => {
+    if (selectedStudentId) {
+      navigate(`/informes/${selectedStudentId}`);
+    } else {
+      
+
+      Swal.fire({
+        title: "Seleccione un estudiante de la lista!",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500
+      });
+    }
+  };
+const handleStudentSelect = (id) => {
+  setSelectedStudentId(id);
+};
 
   const obtenerDocente = async (id) => {
     try {
@@ -52,6 +76,8 @@ function Principal() {
     localStorage.removeItem('jwtToken');
     navigate('/');
   };
+
+
 
   const handleCloseModal = () => setShowModal(false);
   const handleShowModal = () => setShowModal(true);
@@ -117,11 +143,17 @@ function Principal() {
         </div>
       </nav>
 
-      <TablaEstudiantes id_docente={id_docente} refresh={refreshTable} />
+      <TablaEstudiantes id_docente={id_docente} refresh={refreshTable} navigate={navigate} onStudentSelect={handleStudentSelect} />
+
+
 
       <div className="row justify-content-center">
         <div className="col-auto">
           <button className="btn btn-primary" onClick={handleShowModal}>Nuevo Estudiante</button>
+        </div>
+        <div className="col-auto">
+        <button className="btn btn-primary" onClick={handleShowInforme}>Informes</button>
+        {showInforme && <Informe idEstudiante={selectedStudentId} />}
         </div>
       </div>
 
