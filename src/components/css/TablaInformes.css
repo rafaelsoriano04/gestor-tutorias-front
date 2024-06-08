@@ -1,0 +1,12 @@
+
+.btn-custom {
+    background-color: #d24e72; /* Un azul claro, suave */
+    color: white; /* Color de texto oscuro para contraste */
+    border: none; /* Opcional: quitar el borde si lo prefieres */
+}
+
+.btn-custom:hover {
+    background-color: #ef5350; /* Un poco más oscuro al hacer hover */
+    color: white; /* Texto blanco al hacer hover para más contraste */
+}
+

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from "jwt-decode";
 import TablaEstudiantes from './Estudiantes';
+
 import './css/Principal.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +10,8 @@ import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap'; 
 import Swal from "sweetalert2";
 import Informe from './Informe';
+
+
 
 function Principal() {
   const [userName, setUserName] = useState('');
@@ -27,7 +30,14 @@ function Principal() {
     if (selectedStudentId) {
       navigate(`/informes/${selectedStudentId}`);
     } else {
-      alert("Por favor seleccione un estudiante de la tabla primero.");
+      
+
+      Swal.fire({
+        title: "Seleccione un estudiante de la lista!",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500
+      });
     }
   };
 const handleStudentSelect = (id) => {
