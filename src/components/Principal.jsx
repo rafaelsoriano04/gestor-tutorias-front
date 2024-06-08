@@ -145,8 +145,7 @@ function Principal() {
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicCarrera">
               <Form.Label>Carrera</Form.Label>
-              <Form.Control as="select" defaultValue="Seleccione una opción" name="carrera">
-                <option>Seleccione una opción</option>
+              <Form.Control as="select" placeholder='Seleccione Una Opcion' name="carrera" required>
                 <option>Ingeniería en Software</option>
                 <option>Ingeniería en Telecomunicaciones</option>
                 <option>Ingeniería Industrial</option>
