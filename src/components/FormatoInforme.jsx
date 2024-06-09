@@ -94,6 +94,7 @@ function FormatoInforme() {
           </div>
         </div>
       </nav>
+      
 
       <div className="container mt-4">
         <h1 className="text-center mb-4">Nuevo Informe</h1>

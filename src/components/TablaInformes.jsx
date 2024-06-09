@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import React, { useEffect, useState } from 'react';
+import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './css/TablaInformes.css';
@@ -12,6 +13,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     const [selectedRow, setSelectedRow] = useState(null);
     const [estudiante, setEstudiante] = useState(null);
     const navigate = useNavigate();
+    const [contextMenuPosition, setContextMenuPosition] = useState({
+        top: 0,
+        left: 0,
+    });
+    const [showContextMenu, setShowContextMenu] = useState(false);
+
+
 
     useEffect(() => {
         getDatosEstudiante();
@@ -29,12 +37,14 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     };
     const handleShowInforme = (id) => {
         console.log(id)
-          navigate(`/informes/${id}`);
-        
-      };
+        navigate(`/informes/${id}`);
+
+    };
+
+
     const redirigirInforme = () => {
 
-        
+
         if (estudiante.titulacion.avance_total == 100) {
             Swal.fire({
                 title: "Error",
@@ -44,12 +54,12 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             return;
         } else {
             let id = estudiante.titulacion.id;
-                console.log(id);
-                
+            console.log(id);
+
             if (estudiante === undefined) {
                 navigate(`/`);
             } else {
-                
+
                 navigate(`/nuevo-informe/${id}`);
             }
 
@@ -73,7 +83,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             <tr
                 key={informe.id}
                 className={informe.id === selectedRow ? "table-active" : ""}
-                onClick={() => handleRowClick(informe.id)}
+                onClick={(e) => handleRowClick(e, informe.id)}
                 onDoubleClick={() => handleShowInforme(informe.id)}
                 style={{ cursor: "pointer" }}
             >
@@ -94,6 +104,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                         </div>
                     </div>
                 </td>
+                <td>{informe.estado}</td>
             </tr>
         ));
     };
@@ -105,9 +116,71 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         pageNumbers.push(i);
     }
 
-    const handleRowClick = (id) => {
+    const handleRowClick = (e, id) => {
+        e.stopPropagation();
         setSelectedRow(id);
+        setContextMenuPosition({ top: e.pageY, left: e.pageX });
+        setShowContextMenu(true);
     };
+
+    const handleDocumentClick = (e) => {
+        if (!e.target.closest(".context-menu")) {
+            setShowContextMenu(false);
+            setSelectedRow(null);
+        }
+    };
+    useEffect(() => {
+        document.addEventListener("click", handleDocumentClick);
+        return () => {
+            document.removeEventListener("click", handleDocumentClick);
+        };
+    }, []);
+
+    const eliminarInforme = async (sel) => {
+        const url = `http://localhost:3000/informes/${selectedRow}`;
+        console.log(url)
+        try {
+            const informe = informes.find(informe => informe.id === selectedRow);
+
+            if (informe.estado === "Firmado") {
+                Swal.fire({
+                    title: "Operación no permitida",
+                    text: "No se puede eliminar un informe que ha sido firmado.",
+                    icon: "error",
+                    confirmButtonText: 'OK'
+                });
+                return; 
+            }
+            const confirmacion = await Swal.fire({
+                title: '¿Está seguro?',
+                text: "Esta acción eliminará el informe y sus actividades asociadas. ¿Desea continuar?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+            });
+            
+
+            if (confirmacion.isConfirmed) {
+                const response = await axios.delete(url);
+                getInformes();
+                Swal.fire({
+                    title: "Eliminado",
+                    text: "El Informe se ha sido eliminada correctamente",
+                    icon: "success",
+                    confirmButtonText: 'OK'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo eliminar, intentelo de nuevo mas tarde",
+                icon: "error",
+                confirmButtonText: 'OK'
+            });
+        }
+    };
+
 
     return (
         <div className="container mt-5">
@@ -175,16 +248,29 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
 
                     <button className="btn btn-primary mb-3" onClick={redirigirInforme}>Agregar Informe</button>
                     <table className="table table-hover table-bordered">
+
                         <thead className="table-primary">
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Anexo</th>
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Porcentaje de avance</th>
+                                <th scope="col">Estado</th>
                             </tr>
                         </thead>
                         <tbody>{mostrarInformes()}</tbody>
                     </table>
+                    <div
+                        className="context-menu"
+                        style={{
+                            display: showContextMenu ? "block" : "none",
+                            position: "absolute",
+                            top: `${contextMenuPosition.top}px`,
+                            left: `${contextMenuPosition.left}px`
+                        }}
+                    >
+                        <button className="btn btn-primary btn-custom  mb-3 " onClick={() => eliminarInforme(selectedRow)}>Eliminar Informe</button>
+                    </div>
                     <nav className="d-flex justify-content-between align-items-center">
                         <ul className="pagination mb-0">
                             {pageNumbers.map((number) => (
@@ -203,6 +289,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                 <option value={50}>50 por página</option>
                             </select>
                         </div>
+
                     </nav>
                 </div>
             </div>
