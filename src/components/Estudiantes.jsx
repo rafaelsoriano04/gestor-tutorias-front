@@ -2,7 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-
+import { useNavigate } from 'react-router-dom';
 
 // eslint-disable-next-line react/prop-types
 const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
@@ -15,7 +15,7 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
     const [filtroEstado, setFiltroEstado] = useState("");
     const [filtroCarrera, setFiltroCarrera] = useState("");
     const [filtroNombreCedula, setFiltroNombreCedula] = useState("");
-    
+    const navigate = useNavigate();
     let decoded;
 
     useEffect(() => {
@@ -55,6 +55,11 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
         setSelectedRow(id);
         onStudentSelect(id);
     };
+    const handleShowInforme = (id) => {
+        localStorage.setItem('idPersona', id);
+          navigate(`/informes/${id}`);
+        
+      };
 
     const handleSearch = (e) => {
         setFiltroNombreCedula(e.target.value);
@@ -89,6 +94,7 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
                         estudiante.id === selectedRow ? "table-active" : ""
                     }
                     onClick={() => handleRowClick(estudiante.id)}
+                    onDoubleClick={() => handleShowInforme(estudiante.id)}
                     style={{ cursor: "pointer" }}
                 >
                     <th scope="row">{primerItem + index + 1}</th>
