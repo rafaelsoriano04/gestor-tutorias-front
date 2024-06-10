@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-
 // eslint-disable-next-line react/prop-types
-const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
+const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
     const token = localStorage.getItem("jwtToken");
 
     const [estudiantes, setEstudiantes] = useState([]);
@@ -15,7 +14,7 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
     const [filtroEstado, setFiltroEstado] = useState("");
     const [filtroCarrera, setFiltroCarrera] = useState("");
     const [filtroNombreCedula, setFiltroNombreCedula] = useState("");
-    
+
     let decoded;
 
     useEffect(() => {
@@ -31,7 +30,7 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
             // handleNavigation();
         }
         id_docente = decoded.id;
-        
+
         try {
             const resp = await axios.get(
                 `http://localhost:3000/estudiante/${id_docente}`
@@ -49,7 +48,6 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
     for (let i = 1; i <= Math.ceil(estudiantes.length / itemsPorPagina); i++) {
         pageNumbers.push(i);
     }
-    
 
     const handleRowClick = (id) => {
         setSelectedRow(id);
@@ -123,7 +121,10 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
 
     return (
         <div className="container mt-4">
-            <p className="fs-3 fw-bold text-center">Estudiantes</p>
+            <p className="fs-3 fw-bold text-center">
+                <i className="fas fa-users mr-2 me-3" />
+                Estudiantes
+            </p>
             <div className="row mb-3 justify-content-center">
                 <div className="col-3">
                     <input
