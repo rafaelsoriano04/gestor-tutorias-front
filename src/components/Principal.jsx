@@ -119,6 +119,16 @@ function Principal() {
         }
     };
 
+    const getCurrentDate = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, "0");
+        const day = today.getDate().toString().padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
+    const currentDate = getCurrentDate();
+
     return (
         <div>
             <nav className="navbar bg-custom">
@@ -192,6 +202,7 @@ function Principal() {
                             <Form.Control
                                 type="text"
                                 placeholder="Ingrese el nombre"
+                                maxLength="30"
                                 name="nombre"
                                 required
                             />
@@ -205,6 +216,7 @@ function Principal() {
                                 type="text"
                                 placeholder="Ingrese el apellido"
                                 name="apellido"
+                                maxLength="30"
                                 required
                             />
                         </Form.Group>
@@ -217,6 +229,14 @@ function Principal() {
                                 type="text"
                                 placeholder="Ingrese la identificación"
                                 name="identificacion"
+                                maxLength="10"
+                                pattern="[0-9]*"
+                                onInput={(e) =>
+                                    (e.target.value = e.target.value.replace(
+                                        /[^0-9]/g,
+                                        ""
+                                    ))
+                                }
                                 required
                             />
                         </Form.Group>
@@ -244,10 +264,12 @@ function Principal() {
                         <Form.Group className="mb-3" controlId="formBasicTema">
                             <Form.Label>Tema</Form.Label>
                             <Form.Control
-                                type="text"
+                                as="textarea"
                                 placeholder="Ingrese el tema"
                                 name="tema"
+                                maxLength="100"
                                 required
+                                rows={2} // Puedes ajustar el número de filas según tus necesidades
                             />
                         </Form.Group>
                         <Form.Group
@@ -259,6 +281,7 @@ function Principal() {
                                 type="date"
                                 name="fechaAprobacion"
                                 required
+                                max={currentDate}
                             />
                         </Form.Group>
                         <Form.Group
@@ -270,6 +293,7 @@ function Principal() {
                                 type="email"
                                 placeholder="Ingrese el correo electrónico"
                                 name="correoElectronico"
+                                maxLength="30"
                                 required
                             />
                         </Form.Group>

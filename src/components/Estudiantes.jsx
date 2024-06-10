@@ -140,9 +140,10 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                     <input
                         type="text"
                         className="form-control"
-                        placeholder="Buscar por nombre o cédula"
+                        placeholder="Nombre, apellido o cédula"
                         value={filtroNombreCedula}
                         onChange={handleSearch}
+                        maxLength={30}
                     />
                 </div>
                 <div className="col-auto d-flex align-items-center">

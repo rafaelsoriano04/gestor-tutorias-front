@@ -71,6 +71,7 @@ function Login({ onRegisterClick }) {
                     placeholder="Usuario"
                     value={username}
                     onChange={handleUsernameChange}
+                    maxLength={35}
                 />
             </div>
             <div className="mt-4" style={{ width: "100%", maxWidth: "400px" }}>
@@ -81,6 +82,7 @@ function Login({ onRegisterClick }) {
                     placeholder="Contraseña"
                     value={password}
                     onChange={handlePasswordChange}
+                    maxLength={35}
                 />
             </div>
             {mensajeError && (
