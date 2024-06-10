@@ -120,8 +120,9 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                                 }
                                 aria-valuemin="0"
                                 aria-valuemax="100"
-                            ></div>
-                            {estudiante.titulacion.avance_total}%
+                            >
+                                {estudiante.titulacion.avance_total}%
+                            </div>
                         </div>
                     </td>
                     <td>{estudiante.carrera}</td>

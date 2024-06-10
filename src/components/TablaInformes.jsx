@@ -88,7 +88,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                 <td className="align-middle">
                     <div className="progress">
                         <div
-                            className="progress-bar bg-info "
+                            className="progress-bar bg-primary"
                             role="progressbar"
                             style={{ width: `${informe.porcentaje_avance}%` }}
                             aria-valuenow={informe.porcentaje_avance}
