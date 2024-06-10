@@ -1,136 +1,237 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
-const TablaEstudiantes = ({id_docente,refresh}) => {
+// eslint-disable-next-line react/prop-types
+const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
+    const token = localStorage.getItem("jwtToken");
 
-  const [estudiantes, setEstudiantes] = useState([]);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [ordenarPor, setOrdenarPor] = useState("");
-  const [paginaActual, setPaginaActual] = useState(1);
-  const [itemsPorPagina, setItemsPorPagina] = useState(10);
-  const [estudiantesOrdenados, setEstudiantesOrdenados] = useState([]);
-  const token = localStorage.getItem('jwtToken');
+    const [estudiantes, setEstudiantes] = useState([]);
+    const [selectedRow, setSelectedRow] = useState(null);
+    const [paginaActual, setPaginaActual] = useState(1);
+    const [itemsPorPagina, setItemsPorPagina] = useState(10);
+    const [filtroEstado, setFiltroEstado] = useState("");
+    const [filtroCarrera, setFiltroCarrera] = useState("");
+    const [filtroNombreCedula, setFiltroNombreCedula] = useState("");
+    const navigate = useNavigate();
+    let decoded;
 
-  let decoded;
+    useEffect(() => {
+        getEstudiantes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [refresh]);
 
-  useEffect(() => {
+    const getEstudiantes = async () => {
+        try {
+            decoded = jwtDecode(token);
+        } catch (error) {
+            console.error("Error decoding token:", error);
+            // handleNavigation();
+        }
+        id_docente = decoded.id;
 
-    getEstudiantes();
-  }, [refresh]);
+        try {
+            const resp = await axios.get(
+                `http://localhost:3000/estudiante/${id_docente}`
+            );
+            setEstudiantes(resp.data);
+        } catch (error) {
+            Swal.fire({
+                title: "Oops...",
+                html: "<i>Error al conectar con el servidor</i>",
+                icon: "error",
+            });
+        }
+    };
 
-  const getEstudiantes = async () => {
-    try {
-      decoded = jwtDecode(token);
-    } catch (error) {
-      console.error('Error decoding token:', error);
-      handleNavigation();
+    const paginate = (pageNumber) => setPaginaActual(pageNumber);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(estudiantes.length / itemsPorPagina); i++) {
+        pageNumbers.push(i);
     }
-    id_docente = decoded.id;
 
-    try {
-      const resp = await axios.get(`http://localhost:3000/estudiante/${id_docente}`);
-      setEstudiantes(resp.data);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+    const handleRowClick = (id) => {
+        setSelectedRow(id);
+        onStudentSelect(id);
+    };
+    const handleShowInforme = (id) => {
+        localStorage.setItem("idPersona", id);
+        navigate(`/informes/${id}`);
+    };
 
-  const paginate = (pageNumber) => setPaginaActual(pageNumber);
+    const handleSearch = (e) => {
+        setFiltroNombreCedula(e.target.value);
+    };
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(estudiantes.length / itemsPorPagina); i++) {
-    pageNumbers.push(i);
-  }
+    const cargarEstudiantes = () => {
+        const estudiantesFiltrados = estudiantes.filter((estudiante) => {
+            const nombreCompleto = `${estudiante.persona.nombre} ${estudiante.persona.apellido}`;
+            return (
+                (filtroEstado === "" || estudiante.estado === filtroEstado) &&
+                (filtroCarrera === "" ||
+                    estudiante.carrera === filtroCarrera) &&
+                (filtroNombreCedula === "" ||
+                    estudiante.persona.identificacion.startsWith(
+                        filtroNombreCedula
+                    ) ||
+                    nombreCompleto
+                        .toLowerCase()
+                        .includes(filtroNombreCedula.toLowerCase()))
+            );
+        });
 
-  const handleRowClick = (id) => {
-    setSelectedRow(id);
-  };
+        const ultimoItem = paginaActual * itemsPorPagina;
+        const primerItem = ultimoItem - itemsPorPagina;
 
-  const cargarEstudiantes = () => {
-    const ultimoItem = paginaActual * itemsPorPagina;
-    const primerItem = ultimoItem - itemsPorPagina;
-    return estudiantes.slice(primerItem, ultimoItem).map((estudiante, index) => (
-      <tr
-        key={estudiante.id}
-        className={estudiante.id === selectedRow ? "table-uta" : ""}
-        onClick={() => handleRowClick(estudiante.id)}
-        style={{ cursor: "pointer" }}
-      >
-        <th scope="row">{primerItem + index + 1}</th>
-        <td>{estudiante.cedula}</td>
-        <td>{estudiante.nombre}</td>
-        <td>{estudiante.fechaAprobacion}</td>
-        <td>{estudiante.estado}</td>
-        <td className="align-middle">
-          <div className="progress">
-            <div
-              className="progress-bar progress-bar-animated progress-bar-striped"
-              role="progressbar"
-              style={{ width: `${estudiante.porcentaje}%` }}
-              aria-valuenow={estudiante.porcentaje}
-              aria-valuemin="0"
-              aria-valuemax="100"
-            >
-              {estudiante.porcentaje}%
+        return estudiantesFiltrados
+            .slice(primerItem, ultimoItem)
+            .map((estudiante, index) => (
+                <tr
+                    key={estudiante.id}
+                    className={
+                        estudiante.id === selectedRow ? "table-active" : ""
+                    }
+                    onClick={() => handleRowClick(estudiante.id)}
+                    onDoubleClick={() => handleShowInforme(estudiante.id)}
+                    style={{ cursor: "pointer" }}
+                >
+                    <th scope="row">{primerItem + index + 1}</th>
+                    <td>{estudiante.persona.identificacion}</td>
+                    <td>
+                        {estudiante.persona.nombre +
+                            " " +
+                            estudiante.persona.apellido}
+                    </td>
+                    <td>{estudiante.estado}</td>
+                    <td className="align-middle">
+                        <div className="progress">
+                            <div
+                                className="progress-bar bg-primary"
+                                role="progressbar"
+                                style={{
+                                    width: `${estudiante.titulacion.avance_total}%`,
+                                }}
+                                aria-valuenow={
+                                    estudiante.titulacion.avance_total
+                                }
+                                aria-valuemin="0"
+                                aria-valuemax="100"
+                            ></div>
+                            {estudiante.titulacion.avance_total}%
+                        </div>
+                    </td>
+                    <td>{estudiante.carrera}</td>
+                </tr>
+            ));
+    };
+
+    return (
+        <div className="container mt-4">
+            <p className="fs-3 fw-bold text-center">
+                <i className="fas fa-users mr-2 me-3" />
+                Estudiantes
+            </p>
+            <div className="row mb-3 justify-content-center">
+                <div className="col-3">
+                    <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Nombre, apellido o cédula"
+                        value={filtroNombreCedula}
+                        onChange={handleSearch}
+                        maxLength={30}
+                    />
+                </div>
+                <div className="col-auto d-flex align-items-center">
+                    <label className="me-2">Estado:</label>
+                    <select
+                        className="form-select"
+                        value={filtroEstado}
+                        onChange={(e) => setFiltroEstado(e.target.value)}
+                    >
+                        <option value="">Todos</option>
+                        <option value="En proceso">En proceso</option>
+                        <option value="Graduado">Graduado</option>
+                        <option value="De baja">De baja</option>
+                    </select>
+                </div>
+
+                <div className="col-auto d-flex align-items-center">
+                    <label className="me-2">Carrera:</label>
+                    <select
+                        className="form-select"
+                        value={filtroCarrera}
+                        onChange={(e) => setFiltroCarrera(e.target.value)}
+                    >
+                        <option value="">Todas</option>
+                        <option value="Ingeniería en Software">
+                            Ingeniería en Software
+                        </option>
+                        <option value="Ingeniería en Telecomunicaciones">
+                            Ingeniería en Telecomunicaciones
+                        </option>
+                        <option value="Ingeniería Industrial">
+                            Ingeniería Industrial
+                        </option>
+                        <option value="Ingeniería en Automatización y Robótica">
+                            Ingeniería en Automatización y Robótica
+                        </option>
+                    </select>
+                </div>
             </div>
-          </div>
-        </td>
-        <td>{estudiante.carrera}</td>
-      </tr>
 
-    ));
-  };
-
-
-  return (
-    <div className="container mt-5">
-      <div className="row justify-content-center">
-        <div className="col-12 table-responsive">
-          <p className="fs-3 fw-bold">Estudiantes:</p>
-          <table className="table table-hover table-bordered">
-            <thead className="table-primary">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Cédula</th>
-                <th scope="col">Nombre</th>
-                <th scope="col">Aprobación</th>
-                <th scope="col">Estado</th>
-                <th scope="col">Porcentaje</th>
-                <th scope="col">Carrera</th>
-              </tr>
-            </thead>
-            <tbody>{cargarEstudiantes()}</tbody>
-          </table>
-          <nav className="d-flex justify-content-between align-items-center">
-            <ul className="pagination mb-0">
-              {pageNumbers.map((number) => (
-                <li key={number} className="page-item">
-                  <a onClick={() => paginate(number)} href="#" className="page-link">
-                    {number}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <div>
-              <select onChange={(e) => setItemsPorPagina(parseInt(e.target.value))} value={itemsPorPagina} className="form-select">
-                <option value={5}>5 por página</option>
-                <option value={10}>10 por página</option>
-                <option value={20}>20 por página</option>
-                <option value={50}>50 por página</option>
-              </select>
+            <div className="row justify-content-center">
+                <div className="col-12 table-responsive">
+                    <table className="table table-hover table-bordered table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Cédula</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Estado</th>
+                                <th scope="col">Porcentaje</th>
+                                <th scope="col">Carrera</th>
+                            </tr>
+                        </thead>
+                        <tbody>{cargarEstudiantes()}</tbody>
+                    </table>
+                    <nav className="d-flex justify-content-between align-items-center">
+                        <ul className="pagination mb-0">
+                            {pageNumbers.map((number) => (
+                                <li key={number} className="page-item">
+                                    <a
+                                        onClick={() => paginate(number)}
+                                        href="#"
+                                        className="page-link"
+                                    >
+                                        {number}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                        <div>
+                            <select
+                                onChange={(e) =>
+                                    setItemsPorPagina(parseInt(e.target.value))
+                                }
+                                value={itemsPorPagina}
+                                className="form-select"
+                            >
+                                <option value={5}>5 por página</option>
+                                <option value={10}>10 por página</option>
+                                <option value={20}>20 por página</option>
+                                <option value={50}>50 por página</option>
+                            </select>
+                        </div>
+                    </nav>
+                </div>
             </div>
-          </nav>
         </div>
-      </div>
-      <div className="row justify-content-center">
-        <div className="col-auto">
-          <button className="btn btn-primary">Nuevo Estudiante</button>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default TablaEstudiantes;

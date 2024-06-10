@@ -8,7 +8,8 @@ import Register from "./components/Register.jsx";
 import Principal from "./components/Principal";  
 import Informe from "./components/Informe.jsx";  
 import PrivateRoute from './routes/PrivateRoute';
-import "./styles/main.scss"
+import "./styles/main.scss";
+import FormatoInforme from './components/FormatoInforme.jsx'
 
 function App() {
   // Estado para controlar la visualización de Login o Register
@@ -43,7 +44,10 @@ function App() {
           <Route path="/principal" element={<Principal/>} />
         </Route>
         <Route element={<PrivateRoute />}>
-          <Route path="/informe" element={<Informe/>} />
+          <Route path="/informes/:idEstudiante" element={<Informe/>} />
+        </Route>
+        <Route element={<PrivateRoute />}>
+          <Route path="/nuevo-informe/:id_titulacion" element={<FormatoInforme/>} />
         </Route>
       </Routes>
     </Router>
