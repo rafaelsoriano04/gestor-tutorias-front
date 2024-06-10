@@ -1,11 +1,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useEffect, useState } from 'react';
-import { Form, Button } from 'react-bootstrap';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './css/TablaInformes.css';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./css/TablaInformes.css";
 import Swal from "sweetalert2";
 
+// eslint-disable-next-line react/prop-types
 const TablaInformes = ({ id_estudiante, refresh }) => {
     const [informes, setInformes] = useState([]);
     const [itemsPorPagina, setItemsPorPagina] = useState(10);
@@ -19,32 +19,28 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     });
     const [showContextMenu, setShowContextMenu] = useState(false);
 
-
-
     useEffect(() => {
         getDatosEstudiante();
         getInformes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh, id_estudiante, paginaActual, itemsPorPagina]);
-
 
     const getInformes = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/informes/estudiante/${id_estudiante}`);
+            const response = await axios.get(
+                `http://localhost:3000/informes/estudiante/${id_estudiante}`
+            );
             setInformes(response.data);
         } catch (error) {
-            console.error('Error fetching informes:', error);
+            console.error("Error fetching informes:", error);
         }
     };
     const handleShowInforme = (id) => {
-        console.log(id)
+        console.log(id);
         navigate(`/informes/${id}`);
-
     };
 
-
     const redirigirInforme = () => {
-
-
         if (estudiante.titulacion.avance_total == 100) {
             Swal.fire({
                 title: "Error",
@@ -59,22 +55,21 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             if (estudiante === undefined) {
                 navigate(`/`);
             } else {
-
                 navigate(`/nuevo-informe/${id}`);
             }
-
-
         }
-    }
+    };
 
     const getDatosEstudiante = async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/estudiante/info/${id_estudiante}`);
+            const response = await axios.get(
+                `http://localhost:3000/estudiante/info/${id_estudiante}`
+            );
             setEstudiante(response.data);
         } catch (error) {
-            console.error('Error fetching informes:', error);
+            console.error("Error fetching informes:", error);
         }
-    }
+    };
 
     const mostrarInformes = () => {
         const lastIndex = paginaActual * itemsPorPagina;
@@ -136,39 +131,40 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         };
     }, []);
 
-    const eliminarInforme = async (sel) => {
+    const eliminarInforme = async () => {
         const url = `http://localhost:3000/informes/${selectedRow}`;
-        console.log(url)
+        console.log(url);
         try {
-            const informe = informes.find(informe => informe.id === selectedRow);
+            const informe = informes.find(
+                (informe) => informe.id === selectedRow
+            );
 
             if (informe.estado === "Firmado") {
                 Swal.fire({
                     title: "Operación no permitida",
                     text: "No se puede eliminar un informe que ha sido firmado.",
                     icon: "error",
-                    confirmButtonText: 'OK'
+                    confirmButtonText: "OK",
                 });
-                return; 
+                return;
             }
             const confirmacion = await Swal.fire({
-                title: '¿Está seguro?',
+                title: "¿Está seguro?",
                 text: "Esta acción eliminará el informe y sus actividades asociadas. ¿Desea continuar?",
-                icon: 'warning',
+                icon: "warning",
                 showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
             });
-            
 
             if (confirmacion.isConfirmed) {
-                const response = await axios.delete(url);
+                await axios.delete(url);
                 getInformes();
                 Swal.fire({
                     title: "Eliminado",
                     text: "El Informe se ha sido eliminada correctamente",
                     icon: "success",
-                    confirmButtonText: 'OK'
+                    confirmButtonText: "OK",
                 });
             }
         } catch (error) {
@@ -176,11 +172,10 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                 title: "Error",
                 text: "No se pudo eliminar, intentelo de nuevo mas tarde",
                 icon: "error",
-                confirmButtonText: 'OK'
+                confirmButtonText: "OK",
             });
         }
     };
-
 
     return (
         <div className="container mt-5">
@@ -196,59 +191,152 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                 <div className="card-body">
                                     <div className="row">
                                         <div className="col-md-6 mb-3">
-                                            <label className="form-label">Carrera</label>
+                                            <label className="form-label">
+                                                Carrera
+                                            </label>
                                             <select
                                                 className="form-select"
                                                 value={estudiante.carrera}
-                                                onChange={(e) => setEstudiante({ ...estudiante, carrera: e.target.value })}
+                                                onChange={(e) =>
+                                                    setEstudiante({
+                                                        ...estudiante,
+                                                        carrera: e.target.value,
+                                                    })
+                                                }
                                             >
-                                                <option value="Ingeniería en Software">Ingeniería en Software</option>
-                                                <option value="Ingeniería en Telecomunicaciones">Ingeniería en Telecomunicaciones</option>
-                                                <option value="Ingeniería Industrial">Ingeniería Industrial</option>
-                                                <option value="Ingeniería en Automatización y Robótica">Ingeniería en Automatización y Robótica</option>
+                                                <option value="Ingeniería en Software">
+                                                    Ingeniería en Software
+                                                </option>
+                                                <option value="Ingeniería en Telecomunicaciones">
+                                                    Ingeniería en
+                                                    Telecomunicaciones
+                                                </option>
+                                                <option value="Ingeniería Industrial">
+                                                    Ingeniería Industrial
+                                                </option>
+                                                <option value="Ingeniería en Automatización y Robótica">
+                                                    Ingeniería en Automatización
+                                                    y Robótica
+                                                </option>
                                             </select>
                                         </div>
                                         <div className="col-md-6 mb-3">
-                                            <label className="form-label">Tema de Titulación</label>
-                                            <input type="text" className="form-control" value={estudiante.titulacion.tema} onChange={(e) => setEstudiante({ ...estudiante, titulacion: { ...estudiante.titulacion, tema: e.target.value } })} />
+                                            <label className="form-label">
+                                                Tema de Titulación
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={
+                                                    estudiante.titulacion.tema
+                                                }
+                                                onChange={(e) =>
+                                                    setEstudiante({
+                                                        ...estudiante,
+                                                        titulacion: {
+                                                            ...estudiante.titulacion,
+                                                            tema: e.target
+                                                                .value,
+                                                        },
+                                                    })
+                                                }
+                                            />
                                         </div>
                                     </div>
                                     <div className="row">
                                         <div className="col-md-4 mb-3">
-                                            <label className="form-label">Nombre</label>
-                                            <input type="text" className="form-control" value={estudiante.persona.nombre} onChange={(e) => setEstudiante({ ...estudiante, persona: { ...estudiante.persona, nombre: e.target.value } })} />
+                                            <label className="form-label">
+                                                Nombre
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={
+                                                    estudiante.persona.nombre
+                                                }
+                                                onChange={(e) =>
+                                                    setEstudiante({
+                                                        ...estudiante,
+                                                        persona: {
+                                                            ...estudiante.persona,
+                                                            nombre: e.target
+                                                                .value,
+                                                        },
+                                                    })
+                                                }
+                                            />
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label className="form-label">Apellido</label>
-                                            <input type="text" className="form-control" value={estudiante.persona.apellido} onChange={(e) => setEstudiante({ ...estudiante, persona: { ...estudiante.persona, apellido: e.target.value } })} />
+                                            <label className="form-label">
+                                                Apellido
+                                            </label>
+                                            <input
+                                                type="text"
+                                                className="form-control"
+                                                value={
+                                                    estudiante.persona.apellido
+                                                }
+                                                onChange={(e) =>
+                                                    setEstudiante({
+                                                        ...estudiante,
+                                                        persona: {
+                                                            ...estudiante.persona,
+                                                            apellido:
+                                                                e.target.value,
+                                                        },
+                                                    })
+                                                }
+                                            />
                                         </div>
                                         <div className="col-md-4 mb-3">
-                                            <label className="form-label">Progreso Total (%)</label>
+                                            <label className="form-label">
+                                                Progreso Total (%)
+                                            </label>
                                             <div className="progress">
                                                 <div
-                                                    className="progress-bar progress-bar-striped progress-bar-animated bg-danger"
+                                                    className="progress-bar bg-primary"
                                                     role="progressbar"
-                                                    style={{ width: `${estudiante.titulacion.avance_total}%` }}
-                                                    aria-valuenow={estudiante.titulacion.avance_total}
+                                                    style={{
+                                                        width: `${estudiante.titulacion.avance_total}%`,
+                                                    }}
+                                                    aria-valuenow={
+                                                        estudiante.titulacion
+                                                            .avance_total
+                                                    }
                                                     aria-valuemin="0"
-                                                    aria-valuemax="100">
-                                                    {estudiante.titulacion.avance_total}%
+                                                    aria-valuemax="100"
+                                                >
+                                                    {
+                                                        estudiante.titulacion
+                                                            .avance_total
+                                                    }
+                                                    %
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="d-flex justify-content-center">
-                                        <button className="btn btn-primary btn-custom  mb-3 " onClick={() => navigate('/principal')}>Actualizar Informacion</button>
-
+                                        <button
+                                            className="btn btn-primary btn-custom  mb-3 "
+                                            onClick={() =>
+                                                navigate("/principal")
+                                            }
+                                        >
+                                            Actualizar Informacion
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    <button className="btn btn-primary mb-3" onClick={redirigirInforme}>Agregar Informe</button>
+                    <button
+                        className="btn btn-primary mb-3"
+                        onClick={redirigirInforme}
+                    >
+                        Agregar Informe
+                    </button>
                     <table className="table table-hover table-bordered">
-
                         <thead className="table-primary">
                             <tr>
                                 <th scope="col">#</th>
@@ -266,30 +354,45 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                             display: showContextMenu ? "block" : "none",
                             position: "absolute",
                             top: `${contextMenuPosition.top}px`,
-                            left: `${contextMenuPosition.left}px`
+                            left: `${contextMenuPosition.left}px`,
                         }}
                     >
-                        <button className="btn btn-primary btn-custom  mb-3 " onClick={() => eliminarInforme(selectedRow)}>Eliminar Informe</button>
+                        <button
+                            className="btn btn-primary btn-custom  mb-3 "
+                            onClick={() => eliminarInforme(selectedRow)}
+                        >
+                            Eliminar Informe
+                        </button>
                     </div>
                     <nav className="d-flex justify-content-between align-items-center">
                         <ul className="pagination mb-0">
                             {pageNumbers.map((number) => (
                                 <li key={number} className="page-item">
-                                    <button onClick={() => paginate(number)} className="page-link">
+                                    <button
+                                        onClick={() => paginate(number)}
+                                        className="page-link"
+                                    >
                                         {number}
                                     </button>
                                 </li>
                             ))}
                         </ul>
                         <div>
-                            <select onChange={(e) => setItemsPorPagina(parseInt(e.target.value, 10))} value={itemsPorPagina} className="form-select">
+                            <select
+                                onChange={(e) =>
+                                    setItemsPorPagina(
+                                        parseInt(e.target.value, 10)
+                                    )
+                                }
+                                value={itemsPorPagina}
+                                className="form-select"
+                            >
                                 <option value={5}>5 por página</option>
                                 <option value={10}>10 por página</option>
                                 <option value={20}>20 por página</option>
                                 <option value={50}>50 por página</option>
                             </select>
                         </div>
-
                     </nav>
                 </div>
             </div>

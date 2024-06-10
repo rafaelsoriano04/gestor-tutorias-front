@@ -2,7 +2,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // eslint-disable-next-line react/prop-types
 const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
@@ -37,9 +38,12 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                 `http://localhost:3000/estudiante/${id_docente}`
             );
             setEstudiantes(resp.data);
-            console.log(estudiantes);
         } catch (error) {
-            console.log(error);
+            Swal.fire({
+                title: "Oops...",
+                html: "<i>Error al conectar con el servidor</i>",
+                icon: "error",
+            });
         }
     };
 
@@ -55,10 +59,9 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
         onStudentSelect(id);
     };
     const handleShowInforme = (id) => {
-        localStorage.setItem('idPersona', id);
-          navigate(`/informes/${id}`);
-        
-      };
+        localStorage.setItem("idPersona", id);
+        navigate(`/informes/${id}`);
+    };
 
     const handleSearch = (e) => {
         setFiltroNombreCedula(e.target.value);

@@ -8,38 +8,33 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import axios from "axios";
 import { Modal, Button, Form, Dropdown } from "react-bootstrap";
 import Swal from "sweetalert2";
-import Informe from "./Informe";
 
 function Principal() {
-  const [userName, setUserName] = useState('');
-  const [id_docente, setId_docente] = useState('');
-  const [persona, setPersona] = useState({});
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
-  const token = localStorage.getItem('jwtToken');
-  const [refreshTable, setRefreshTable] = useState(false);
-  const [selectedStudentId, setSelectedStudentId] = useState(null);
-  const [showInforme, setShowInforme] = useState(false);
+    const [id_docente, setId_docente] = useState("");
+    const [persona, setPersona] = useState({});
+    const [showModal, setShowModal] = useState(false);
+    const navigate = useNavigate();
+    const token = localStorage.getItem("jwtToken");
+    const [refreshTable, setRefreshTable] = useState(false);
+    const [selectedStudentId, setSelectedStudentId] = useState(null);
 
+    const handleShowInforme = () => {
+        if (selectedStudentId) {
+            localStorage.setItem("idPersona", selectedStudentId);
+            navigate(`/informes/${selectedStudentId}`);
+        } else {
+            Swal.fire({
+                title: "Seleccione un estudiante de la lista!",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+        }
+    };
 
-  const handleShowInforme = () => {
-    if (selectedStudentId) {
-      localStorage.setItem('idPersona', selectedStudentId);
-      navigate(`/informes/${selectedStudentId}`);
-    } else {
-      
-      Swal.fire({
-        title: "Seleccione un estudiante de la lista!",
-        icon: "error",
-        showConfirmButton: false,
-        timer: 1500
-      });
-    }
-  };
-const handleStudentSelect = (id) => {
-  setSelectedStudentId(id);
-};
+    const handleStudentSelect = (id) => {
+        setSelectedStudentId(id);
+    };
 
     const obtenerDocente = async (id) => {
         try {
@@ -48,11 +43,9 @@ const handleStudentSelect = (id) => {
             );
             if (response.data) {
                 setPersona(response.data.persona);
-                setUserName(response.data.persona.nombre); // Asumiendo que la respuesta tiene este formato
             }
         } catch (error) {
             console.error("Error fetching docente:", error);
-            setError(error);
             handleNavigation();
         }
     };
@@ -66,8 +59,7 @@ const handleStudentSelect = (id) => {
                 obtenerDocente(decoded.id);
             }
         } catch (error) {
-            console.error("Error decoding token:", error);
-            handleNavigation();
+            //
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [token]); // Dependencia sobre token
@@ -147,7 +139,7 @@ const handleStudentSelect = (id) => {
                                 variant="primary"
                                 id="dropdown-basic"
                             >
-                                <i className="fas fa-user mr-2"></i>
+                                <i className="fa fa-user fa-2"></i>
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
@@ -183,9 +175,6 @@ const handleStudentSelect = (id) => {
                     >
                         Informes
                     </button>
-                    {showInforme && (
-                        <Informe idEstudiante={selectedStudentId} />
-                    )}
                 </div>
             </div>
 
@@ -284,9 +273,15 @@ const handleStudentSelect = (id) => {
                                 required
                             />
                         </Form.Group>
-                        <Button variant="primary" type="submit">
-                            Asignar
-                        </Button>
+                        <div className="container d-flex justify-content-center">
+                            <Button
+                                className="align-items-center"
+                                variant="primary"
+                                type="submit"
+                            >
+                                Asignar
+                            </Button>
+                        </div>
                     </Form>
                 </Modal.Body>
             </Modal>
