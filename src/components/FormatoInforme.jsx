@@ -327,3 +327,4 @@ function FormatoInforme() {
 }
 
 export default FormatoInforme;
+

@@ -2,10 +2,11 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 // eslint-disable-next-line react/prop-types
-const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
+const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
     const token = localStorage.getItem("jwtToken");
 
     const [estudiantes, setEstudiantes] = useState([]);
@@ -31,15 +32,18 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
             // handleNavigation();
         }
         id_docente = decoded.id;
-        
+
         try {
             const resp = await axios.get(
                 `http://localhost:3000/estudiante/${id_docente}`
             );
             setEstudiantes(resp.data);
-            console.log(estudiantes);
         } catch (error) {
-            console.log(error);
+            Swal.fire({
+                title: "Oops...",
+                html: "<i>Error al conectar con el servidor</i>",
+                icon: "error",
+            });
         }
     };
 
@@ -49,17 +53,15 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
     for (let i = 1; i <= Math.ceil(estudiantes.length / itemsPorPagina); i++) {
         pageNumbers.push(i);
     }
-    
 
     const handleRowClick = (id) => {
         setSelectedRow(id);
         onStudentSelect(id);
     };
     const handleShowInforme = (id) => {
-        localStorage.setItem('idPersona', id);
-          navigate(`/informes/${id}`);
-        
-      };
+        localStorage.setItem("idPersona", id);
+        navigate(`/informes/${id}`);
+    };
 
     const handleSearch = (e) => {
         setFiltroNombreCedula(e.target.value);
@@ -129,15 +131,19 @@ const TablaEstudiantes = ({ id_docente, refresh,onStudentSelect }) => {
 
     return (
         <div className="container mt-4">
-            <p className="fs-3 fw-bold text-center">Estudiantes</p>
+            <p className="fs-3 fw-bold text-center">
+                <i className="fas fa-users mr-2 me-3" />
+                Estudiantes
+            </p>
             <div className="row mb-3 justify-content-center">
                 <div className="col-3">
                     <input
                         type="text"
                         className="form-control"
-                        placeholder="Buscar por nombre o cédula"
+                        placeholder="Nombre, apellido o cédula"
                         value={filtroNombreCedula}
                         onChange={handleSearch}
+                        maxLength={30}
                     />
                 </div>
                 <div className="col-auto d-flex align-items-center">
