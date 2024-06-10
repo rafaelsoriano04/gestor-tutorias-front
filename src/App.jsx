@@ -47,7 +47,7 @@ function App() {
           <Route path="/informes/:idEstudiante" element={<Informe/>} />
         </Route>
         <Route element={<PrivateRoute />}>
-          <Route path="/informes/:id_titulacion" element={<FormatoInforme/>} />
+          <Route path="/nuevo-informe/:id_titulacion" element={<FormatoInforme/>} />
         </Route>
       </Routes>
     </Router>

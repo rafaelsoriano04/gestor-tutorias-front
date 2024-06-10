@@ -11,32 +11,35 @@ import Swal from "sweetalert2";
 import Informe from "./Informe";
 
 function Principal() {
-    const [userName, setUserName] = useState("");
-    const [id_docente, setId_docente] = useState("");
-    const [persona, setPersona] = useState({});
-    const [error, setError] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const navigate = useNavigate();
-    const token = localStorage.getItem("jwtToken");
-    const [refreshTable, setRefreshTable] = useState(false);
-    const [selectedStudentId, setSelectedStudentId] = useState(null);
-    const [showInforme, setShowInforme] = useState(false);
+  const [userName, setUserName] = useState('');
+  const [id_docente, setId_docente] = useState('');
+  const [persona, setPersona] = useState({});
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
+  const token = localStorage.getItem('jwtToken');
+  const [refreshTable, setRefreshTable] = useState(false);
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [showInforme, setShowInforme] = useState(false);
 
-    const handleShowInforme = () => {
-        if (selectedStudentId) {
-            navigate(`/informes/${selectedStudentId}`);
-        } else {
-            Swal.fire({
-                title: "Seleccione un estudiante de la lista!",
-                icon: "error",
-                showConfirmButton: false,
-                timer: 1500,
-            });
-        }
-    };
-    const handleStudentSelect = (id) => {
-        setSelectedStudentId(id);
-    };
+
+  const handleShowInforme = () => {
+    if (selectedStudentId) {
+      localStorage.setItem('idPersona', selectedStudentId);
+      navigate(`/informes/${selectedStudentId}`);
+    } else {
+      
+      Swal.fire({
+        title: "Seleccione un estudiante de la lista!",
+        icon: "error",
+        showConfirmButton: false,
+        timer: 1500
+      });
+    }
+  };
+const handleStudentSelect = (id) => {
+  setSelectedStudentId(id);
+};
 
     const obtenerDocente = async (id) => {
         try {
