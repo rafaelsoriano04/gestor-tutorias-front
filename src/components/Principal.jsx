@@ -169,7 +169,7 @@ function Principal() {
                 onStudentSelect={handleStudentSelect}
             />
 
-            <div className="row justify-content-center">
+            <div className="row justify-content-center mb-4">
                 <div className="col-auto">
                     <button
                         className="btn btn-primary hover"
@@ -267,7 +267,7 @@ function Principal() {
                                 as="textarea"
                                 placeholder="Ingrese el tema"
                                 name="tema"
-                                maxLength="100"
+                                maxLength="150"
                                 required
                                 rows={2} // Puedes ajustar el número de filas según tus necesidades
                             />

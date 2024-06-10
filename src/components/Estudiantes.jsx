@@ -120,8 +120,9 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                                 }
                                 aria-valuemin="0"
                                 aria-valuemax="100"
-                            >{estudiante.titulacion.avance_total}%</div>
-                            
+                            >
+                                {estudiante.titulacion.avance_total}%
+                            </div>
                         </div>
                     </td>
                     <td>{estudiante.carrera}</td>
@@ -186,7 +187,7 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
 
             <div className="row justify-content-center">
                 <div className="col-12 table-responsive">
-                    <table className="table table-hover table-bordered table-striped">
+                    <table className="table table-hover table-bordered">
                         <thead>
                             <tr>
                                 <th scope="col">#</th>
@@ -199,7 +200,7 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                         </thead>
                         <tbody>{cargarEstudiantes()}</tbody>
                     </table>
-                    <nav className="d-flex justify-content-between align-items-center">
+                    <nav className="d-flex justify-content-between align-items-center mb-2">
                         <ul className="pagination mb-0">
                             {pageNumbers.map((number) => (
                                 <li key={number} className="page-item">
