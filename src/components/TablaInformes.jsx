@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import "./css/TablaInformes.css";
 import Swal from "sweetalert2";
 
+//() =>
+// navigate("/principal")
+
 // eslint-disable-next-line react/prop-types
 const TablaInformes = ({ id_estudiante, refresh }) => {
     const [informes, setInformes] = useState([]);
@@ -177,11 +180,59 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         }
     };
 
+    const updateEstudiante = async () => {
+        const request = {
+            carrera: estudiante.carrera,
+            nombre: estudiante.persona.nombre,
+            apellido: estudiante.persona.apellido,
+            tema: estudiante.titulacion.tema,
+            fecha_aprobacion: estudiante.titulacion.fecha_aprobacion,
+        };
+        const estu = localStorage.getItem("idPersona");
+        try {
+            const response = await axios.put(
+                `http://localhost:3000/estudiante/${estu}`,
+                request
+            );
+            setEstudiante(response.data);
+            Swal.fire({
+                text: "Datos del Estudiante Actualizados",
+                icon: "success",
+            });
+        } catch (error) {
+            console.error("Error fetching informes:", error);
+        }
+    };
+
+    const handleDateChange = (e) => {
+        const dateValue = e.target.value;
+        setEstudiante((prevEstudiante) => ({
+            ...prevEstudiante,
+            titulacion: {
+                ...prevEstudiante.titulacion,
+                fecha_aprobacion: dateValue,
+            },
+        }));
+    };
+
+    const handleBack = () => {
+        navigate("/principal");
+    };
+
     return (
-        <div className="container mt-5">
+        <div className="container mt-3">
             <div className="row justify-content-center">
                 <div className="col-12 table-responsive">
-                    <h2 className="text-center mb-4">Informes</h2>
+                    <h2 className="text-center mb-1">Informes</h2>
+                    <div className="mb-2">
+                        <button
+                            type="button"
+                            className="btn btn-primary btn-floating"
+                            onClick={handleBack}
+                        >
+                            <i className="fa fa-arrow-left fa-2"></i>
+                        </button>
+                    </div>
                     <div>
                         {estudiante && (
                             <div className="card mb-4">
@@ -227,6 +278,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                maxLength="150"
                                                 value={
                                                     estudiante.titulacion.tema
                                                 }
@@ -251,6 +303,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                maxLength="30"
                                                 value={
                                                     estudiante.persona.nombre
                                                 }
@@ -273,6 +326,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                             <input
                                                 type="text"
                                                 className="form-control"
+                                                maxLength="30"
                                                 value={
                                                     estudiante.persona.apellido
                                                 }
@@ -288,13 +342,31 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 }
                                             />
                                         </div>
-                                        <div className="col-md-4 mb-3">
+                                        <div className="col-md-4">
+                                            <label
+                                                htmlFor="studentName"
+                                                className="form-label"
+                                            >
+                                                Fecha de Aprobacion
+                                            </label>
+                                            <input
+                                                type="date"
+                                                className="form-control"
+                                                id="studentName"
+                                                value={
+                                                    estudiante.titulacion
+                                                        .fecha_aprobacion
+                                                }
+                                                onChange={handleDateChange}
+                                            />
+                                        </div>
+                                        <div className="col-md-12 mb-3">
                                             <label className="form-label">
                                                 Progreso Total (%)
                                             </label>
                                             <div className="progress">
                                                 <div
-                                                    className="progress-bar bg-primary"
+                                                    className="progress-bar bg-primary progress-bar-animated progress-bar-striped"
                                                     role="progressbar"
                                                     style={{
                                                         width: `${estudiante.titulacion.avance_total}%`,
@@ -317,10 +389,8 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                     </div>
                                     <div className="d-flex justify-content-center">
                                         <button
-                                            className="btn btn-primary btn-custom  mb-3 "
-                                            onClick={() =>
-                                                navigate("/principal")
-                                            }
+                                            className="btn btn-primary btn-custom  mb-1 "
+                                            onClick={updateEstudiante}
                                         >
                                             Actualizar Informacion
                                         </button>
@@ -364,7 +434,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                             Eliminar Informe
                         </button>
                     </div>
-                    <nav className="d-flex justify-content-between align-items-center">
+                    <nav className="d-flex justify-content-between align-items-center mb-5">
                         <ul className="pagination mb-0">
                             {pageNumbers.map((number) => (
                                 <li key={number} className="page-item">

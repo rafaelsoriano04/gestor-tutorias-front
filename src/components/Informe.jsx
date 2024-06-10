@@ -17,6 +17,8 @@ function Informe() {
         navigate("/");
     };
 
+
+
     const obtenerDocente = async (id) => {
         try {
             const response = await axios.get(
