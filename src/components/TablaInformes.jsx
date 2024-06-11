@@ -223,7 +223,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         <div className="container mt-3">
             <div className="row justify-content-center">
                 <div className="col-12 table-responsive">
-                    <h2 className="text-center mb-1">Informes</h2>
+                    <h2 className="text-center mb-1">Estudiante</h2>
                     <div className="mb-2">
                         <button
                             type="button"
@@ -399,7 +399,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                             </div>
                         )}
                     </div>
-
+                    <h2 className="text-center mb-1">Informes</h2>
                     <button
                         className="btn btn-primary mb-3"
                         onClick={redirigirInforme}
