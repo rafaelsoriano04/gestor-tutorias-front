@@ -24,6 +24,7 @@ function FormatoInforme() {
     const [value, setValue] = useState("");
     const token = localStorage.getItem("jwtToken");
     const [persona, setPersona] = useState({});
+    
 
     //obtiene la fecha actual en formato YYYY-MM-DD.
     const getCurrentDate = () => {
@@ -35,6 +36,11 @@ function FormatoInforme() {
     };
 
     const currentDate = getCurrentDate();
+
+    const eliminarActividad = (index) => {
+        const nuevasActividades = actividades.filter((_, i) => i !== index);
+        setActividades(nuevasActividades);
+    };
 
     // Navegación para cerrar sesión y manejo del botón de cancelar
     const handleNavigation = () => {
@@ -92,6 +98,34 @@ function FormatoInforme() {
             setEstadoFirmado(newFirmado ? "Firmado" : "No Firmado");
             return newFirmado;
         });
+    };
+
+    const handleRegresar =async () => {
+        if(actividades.length != 0){
+            const confirmacion = await Swal.fire({
+                title: "¿Está seguro?",
+                text: "¿Quiere salir sin guardar el informe?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Sí quiero salir",
+                cancelButtonText: "Cancelar",
+            });
+            if(confirmacion.isConfirmed){
+                const estu = localStorage.getItem("idPersona");
+                if (estu == undefined) {
+                    navigate("/");
+                } else {
+                    navigate(`/informes/${estu}`);
+                }
+            }
+        }else{
+            const estu = localStorage.getItem("idPersona");
+                if (estu == undefined) {
+                    navigate("/");
+                } else {
+                    navigate(`/informes/${estu}`);
+                }
+        }
     };
 
     // Maneja la acción de cancelar y regresa a la página anterior o al inicio
@@ -207,15 +241,6 @@ function FormatoInforme() {
             return;
         }
 
-        if (Number(porcentajeAvance) + Number(avance_total) > 100) {
-            Swal.fire({
-                title: "Operación no permitida",
-                text: "La suma del porcentaje de avance y el avance total no puede ser mayor a 100.",
-                icon: "error",
-                confirmButtonText: "OK",
-            });
-            return;
-        }
         if (porcentajeAvance === null) {
             Swal.fire({
                 title: "Operación no permitida",
@@ -305,7 +330,7 @@ function FormatoInforme() {
                     <button
                         type="button"
                         className="btn btn-primary btn-floating"
-                        onClick={handleCancelar}
+                        onClick={handleRegresar}
                     >
                         <i className="fa fa-arrow-left fa-2"></i>
                     </button>
@@ -373,13 +398,14 @@ function FormatoInforme() {
                             className="form-control"
                             id="notificationDate"
                             value={fechaCreacionInforme}
+                            min={fechaAprobacion}
                             max={currentDate} //No permite que ingrese una fecha futura
                             onChange={(e) =>
                                 setFechaCreacionInforme(e.target.value)
                             }
                         />
                     </div>
-                    <div className="col-md-4">
+                    <div className="col-md-2">
                         <label htmlFor="number-input" className="form-label">
                             Porcentaje de avance:
                         </label>
@@ -389,6 +415,19 @@ function FormatoInforme() {
                             onChange={handleChange}
                             className="form-control"
                             id="number-input"
+                        />
+                    </div>
+                    <div className="col-md-2">
+                        <label htmlFor="number-input" className="form-label">
+                            Porcentaje actual:
+                        </label>
+                        <input
+                            type="text"
+                            value={avance_total}
+                            onChange={handleChange}
+                            className="form-control"
+                            id="number-input"
+                            readOnly
                         />
                     </div>
                 </div>
@@ -404,8 +443,77 @@ function FormatoInforme() {
                         {estadoFirmado}
                     </label>
                 </div>
-
+                
                 <h3>Actividades</h3>
+            <table className="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {actividades.map((actividad, index) => (
+                        <tr key={index}>
+                            <td>
+                                <input
+                                    type="text"
+                                    value={actividad.descripcion}
+                                    maxLength={100}
+                                    onChange={(e) => handleDescripcionChange(index, e)}
+                                    className="form-control"
+                                />
+                            </td>
+                            <td>
+                                <input
+                                    type="date"
+                                    value={actividad.fecha}
+                                    onChange={(e) => handleFechaChange(index, e)}
+                                    className="form-control"
+                                    max={fechaCreacionInforme}
+                                />
+                            </td>
+                            <td className="text-center">
+                                <button
+                                    className="btn btn-danger btn-circle"
+                                    onClick={() => eliminarActividad(index)}
+                                >
+                                    &times;
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div className="d-flex justify-content-end">
+                <button className="btn btn-primary" onClick={agregarActividad}>
+                    Agregar Actividad
+                </button>
+            </div>
+
+            <style>
+                {`
+                    .btn-circle {
+                        color: white;
+                        width: 30px;
+                        height: 30px;
+                        padding: 6px 0;
+                        border-radius: 15px;
+                        text-align: center;
+                        font-size: 12px;
+                        line-height: 1.42857;
+                        background-color: #9B2B2B;
+                    }
+                `}
+            </style>
+            <div className="d-flex justify-content-center mt-3">
+                    <button className="btn btn-primary" onClick={handleGuardar}>
+                        Guardar
+                    </button>
+                </div>
+
+                {/*<h3>Actividades</h3>
                 <table className="table table-hover table-bordered">
                     <thead>
                         <tr>
@@ -435,7 +543,7 @@ function FormatoInforme() {
                                             handleFechaChange(index, e)
                                         }
                                         className="form-control"
-                                        max={currentDate}
+                                        max={fechaCreacionInforme}
                                     />
                                 </td>
                             </tr>
@@ -451,11 +559,7 @@ function FormatoInforme() {
                     </button>
                 </div>
 
-                <div className="d-flex justify-content-center mt-3">
-                    <button className="btn btn-primary" onClick={handleGuardar}>
-                        Guardar
-                    </button>
-                </div>
+                */}
             </div>
         </div>
     );
