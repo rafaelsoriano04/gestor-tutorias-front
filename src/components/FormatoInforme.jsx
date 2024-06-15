@@ -5,9 +5,9 @@ import "./css/Informe.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
-import { Dropdown } from "react-bootstrap";
+import Navbar from "./Navbar";
 
-function FormatoInforme() {
+const Informe = () => {
     const navigate = useNavigate();
     const [actividades, setActividades] = useState([]);
     const [firmado, setFirmado] = useState(false);
@@ -24,7 +24,6 @@ function FormatoInforme() {
     const [value, setValue] = useState("");
     const token = localStorage.getItem("jwtToken");
     const [persona, setPersona] = useState({});
-    
 
     //obtiene la fecha actual en formato YYYY-MM-DD.
     const getCurrentDate = () => {
@@ -47,6 +46,7 @@ function FormatoInforme() {
         localStorage.removeItem("jwtToken");
         navigate("/");
     };
+
     const obtenerDocente = async (id) => {
         try {
             const response = await axios.get(
@@ -100,8 +100,8 @@ function FormatoInforme() {
         });
     };
 
-    const handleRegresar =async () => {
-        if(actividades.length != 0){
+    const handleRegresar = async () => {
+        if (actividades.length != 0) {
             const confirmacion = await Swal.fire({
                 title: "¿Está seguro?",
                 text: "¿Quiere salir sin guardar el informe?",
@@ -110,7 +110,7 @@ function FormatoInforme() {
                 confirmButtonText: "Sí quiero salir",
                 cancelButtonText: "Cancelar",
             });
-            if(confirmacion.isConfirmed){
+            if (confirmacion.isConfirmed) {
                 const estu = localStorage.getItem("idPersona");
                 if (estu == undefined) {
                     navigate("/");
@@ -118,13 +118,13 @@ function FormatoInforme() {
                     navigate(`/informes/${estu}`);
                 }
             }
-        }else{
+        } else {
             const estu = localStorage.getItem("idPersona");
-                if (estu == undefined) {
-                    navigate("/");
-                } else {
-                    navigate(`/informes/${estu}`);
-                }
+            if (estu == undefined) {
+                navigate("/");
+            } else {
+                navigate(`/informes/${estu}`);
+            }
         }
     };
 
@@ -173,11 +173,10 @@ function FormatoInforme() {
 
     const getDatosEstudiante = async () => {
         try {
-            const estu = localStorage.getItem("idPersona");
-            console.log(estu);
-            if (estu) {
+            const estudiante = localStorage.getItem("idPersona");
+            if (estudiante) {
                 const response = await axios.get(
-                    `http://localhost:3000/estudiante/info/${estu}`
+                    `http://localhost:3000/estudiante/info/${estudiante}`
                 );
                 if (response.data) {
                     setIdEstudiante(response.data.id || "");
@@ -293,36 +292,7 @@ function FormatoInforme() {
 
     return (
         <div>
-            <nav className="navbar bg-custom">
-                <div className="container-fluid d-flex justify-content-between">
-                    <span className="navbar-text text-white">
-                        Universidad Técnica de Ambato
-                    </span>
-                    <div
-                        className="d-flex align-items-center text-custom logout"
-                        style={{ cursor: "pointer" }}
-                    >
-                        <span className="logout-text ms-2 pe-3">
-                            {persona.nombre} {persona.apellido}
-                        </span>
-
-                        <Dropdown>
-                            <Dropdown.Toggle
-                                variant="primary"
-                                id="dropdown-basic"
-                            >
-                                <i className="fa fa-user fa-2"></i>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu>
-                                <Dropdown.Item onClick={handleNavigation}>
-                                    Cerrar Sesión
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                </div>
-            </nav>
+            <Navbar nombre={persona.nombre} apellido={persona.apellido} />
 
             <div className="container mt-4">
                 <h1 className="text-center mb-4">Nuevo Informe</h1>
@@ -443,82 +413,14 @@ function FormatoInforme() {
                         {estadoFirmado}
                     </label>
                 </div>
-                
+
                 <h3>Actividades</h3>
-            <table className="table table-hover table-bordered">
-                <thead>
-                    <tr>
-                        <th>Descripción</th>
-                        <th>Fecha</th>
-                        <th>Eliminar</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {actividades.map((actividad, index) => (
-                        <tr key={index}>
-                            <td>
-                                <input
-                                    type="text"
-                                    value={actividad.descripcion}
-                                    maxLength={100}
-                                    onChange={(e) => handleDescripcionChange(index, e)}
-                                    className="form-control"
-                                />
-                            </td>
-                            <td>
-                                <input
-                                    type="date"
-                                    value={actividad.fecha}
-                                    onChange={(e) => handleFechaChange(index, e)}
-                                    className="form-control"
-                                    max={fechaCreacionInforme}
-                                />
-                            </td>
-                            <td className="text-center">
-                                <button
-                                    className="btn btn-danger btn-circle"
-                                    onClick={() => eliminarActividad(index)}
-                                >
-                                    &times;
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-            <div className="d-flex justify-content-end">
-                <button className="btn btn-primary" onClick={agregarActividad}>
-                    Agregar Actividad
-                </button>
-            </div>
-
-            <style>
-                {`
-                    .btn-circle {
-                        color: white;
-                        width: 30px;
-                        height: 30px;
-                        padding: 6px 0;
-                        border-radius: 15px;
-                        text-align: center;
-                        font-size: 12px;
-                        line-height: 1.42857;
-                        background-color: #9B2B2B;
-                    }
-                `}
-            </style>
-            <div className="d-flex justify-content-center mt-3">
-                    <button className="btn btn-primary" onClick={handleGuardar}>
-                        Guardar
-                    </button>
-                </div>
-
-                {/*<h3>Actividades</h3>
                 <table className="table table-hover table-bordered">
                     <thead>
                         <tr>
                             <th>Descripción</th>
                             <th>Fecha</th>
+                            <th>Eliminar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -546,6 +448,14 @@ function FormatoInforme() {
                                         max={fechaCreacionInforme}
                                     />
                                 </td>
+                                <td className="text-center">
+                                    <button
+                                        className="btn btn-danger btn-circle"
+                                        onClick={() => eliminarActividad(index)}
+                                    >
+                                        &times;
+                                    </button>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -558,11 +468,14 @@ function FormatoInforme() {
                         Agregar Actividad
                     </button>
                 </div>
-
-                */}
+                <div className="d-flex justify-content-center mt-3">
+                    <button className="btn btn-primary" onClick={handleGuardar}>
+                        Guardar
+                    </button>
+                </div>
             </div>
         </div>
     );
-}
+};
 
-export default FormatoInforme;
+export default Informe;

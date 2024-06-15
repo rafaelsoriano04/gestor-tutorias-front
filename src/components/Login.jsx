@@ -6,7 +6,7 @@ import logoUsuario from "../assets/logoUsuario.png";
 import { useNavigate } from "react-router-dom";
 
 // eslint-disable-next-line react/prop-types
-function Login({ onRegisterClick }) {
+const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -103,6 +103,6 @@ function Login({ onRegisterClick }) {
             </button>
         </form>
     );
-}
+};
 
 export default Login;

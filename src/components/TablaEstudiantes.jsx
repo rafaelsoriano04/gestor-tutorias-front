@@ -156,7 +156,7 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                     >
                         <option value="">Todos</option>
                         <option value="En proceso">En proceso</option>
-                        <option value="Graduado">Graduado</option>
+                        <option value="Finalizado">Finalizado</option>
                         <option value="De baja">De baja</option>
                     </select>
                 </div>
