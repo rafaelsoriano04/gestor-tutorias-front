@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import TablaEstudiantes from "./Estudiantes";
+import TablaEstudiantes from "./TablaEstudiantes";
 import "./css/Principal.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate } from "react-router-dom";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import axios from "axios";
-import { Modal, Button, Form, Dropdown } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 import Swal from "sweetalert2";
+import Navbar from "./Navbar";
 
 function Principal() {
     const [id_docente, setId_docente] = useState("");
@@ -131,37 +132,7 @@ function Principal() {
 
     return (
         <div>
-            <nav className="navbar bg-custom">
-                <div className="container-fluid d-flex justify-content-between">
-                    <span className="navbar-text text-white">
-                        Universidad Técnica de Ambato
-                    </span>
-                    <div
-                        className="d-flex align-items-center text-custom logout"
-                        style={{ cursor: "pointer" }}
-                    >
-                        <span className="logout-text ms-2 pe-3">
-                            {persona.nombre} {persona.apellido}
-                        </span>
-
-                        <Dropdown>
-                            <Dropdown.Toggle
-                                variant="primary"
-                                id="dropdown-basic"
-                            >
-                                <i className="fa fa-user fa-2"></i>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu>
-                                <Dropdown.Item onClick={handleNavigation}>
-                                    Cerrar Sesión
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                </div>
-            </nav>
-
+            <Navbar nombre={persona.nombre} apellido={persona.apellido} />
             <TablaEstudiantes
                 id_docente={id_docente}
                 refresh={refreshTable}

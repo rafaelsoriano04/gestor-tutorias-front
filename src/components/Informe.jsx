@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import "./css/Informe.css";
 import { jwtDecode } from "jwt-decode";
 import TablaInformes from "./TablaInformes";
-import { Dropdown } from "react-bootstrap";
 import axios from "axios";
+import Navbar from "./Navbar";
 
-function Informe() {
+const Informe = () => {
     const navigate = useNavigate();
     const { idEstudiante } = useParams();
     const [persona, setPersona] = useState({});
@@ -16,8 +16,6 @@ function Informe() {
         localStorage.removeItem("jwtToken");
         navigate("/");
     };
-
-
 
     const obtenerDocente = async (id) => {
         try {
@@ -48,39 +46,10 @@ function Informe() {
 
     return (
         <div>
-            <nav className="navbar bg-custom">
-                <div className="container-fluid d-flex justify-content-between">
-                    <span className="navbar-text text-white">
-                        Universidad Técnica de Ambato
-                    </span>
-                    <div
-                        className="d-flex align-items-center text-custom logout"
-                        style={{ cursor: "pointer" }}
-                    >
-                        <span className="logout-text ms-2 pe-3">
-                            {persona.nombre} {persona.apellido}
-                        </span>
-
-                        <Dropdown>
-                            <Dropdown.Toggle
-                                variant="primary"
-                                id="dropdown-basic"
-                            >
-                                <i className="fa fa-user fa-2"></i>
-                            </Dropdown.Toggle>
-
-                            <Dropdown.Menu>
-                                <Dropdown.Item onClick={handleNavigation}>
-                                    Cerrar Sesión
-                                </Dropdown.Item>
-                            </Dropdown.Menu>
-                        </Dropdown>
-                    </div>
-                </div>
-            </nav>
+            <Navbar nombre={persona.nombre} apellido={persona.apellido} />
             <TablaInformes id_estudiante={idEstudiante} refresh={false} />
         </div>
     );
-}
+};
 
 export default Informe;

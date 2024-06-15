@@ -5,9 +5,6 @@ import { useNavigate } from "react-router-dom";
 import "./css/TablaInformes.css";
 import Swal from "sweetalert2";
 
-//() =>
-// navigate("/principal")
-
 // eslint-disable-next-line react/prop-types
 const TablaInformes = ({ id_estudiante, refresh }) => {
     const [informes, setInformes] = useState([]);
@@ -53,8 +50,6 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             return;
         } else {
             let id = estudiante.titulacion.id;
-            console.log(id);
-
             if (estudiante === undefined) {
                 navigate(`/`);
             } else {
