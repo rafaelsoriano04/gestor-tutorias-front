@@ -7,7 +7,7 @@ import Principal from "./components/Principal";
 import Informe from "./components/Informe.jsx";
 import PrivateRoute from "./routes/PrivateRoute";
 import "./styles/main.scss";
-import FormatoInforme from "./components/FormatoInforme.jsx";
+import NuevoInforme from "./components/NuevoInforme.jsx";
 
 function App() {
     // Función para alternar entre Login y Register
@@ -51,7 +51,7 @@ function App() {
                 <Route element={<PrivateRoute />}>
                     <Route
                         path="/nuevo-informe/:id_titulacion"
-                        element={<FormatoInforme />}
+                        element={<NuevoInforme />}
                     />
                 </Route>
             </Routes>

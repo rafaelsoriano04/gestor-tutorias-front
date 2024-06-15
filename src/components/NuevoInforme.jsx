@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "./Navbar";
 
-const Informe = () => {
+const NuevoInforme = () => {
     const navigate = useNavigate();
     const [actividades, setActividades] = useState([]);
     const [firmado, setFirmado] = useState(false);
@@ -478,4 +478,4 @@ const Informe = () => {
     );
 };
 
-export default Informe;
+export default NuevoInforme;
