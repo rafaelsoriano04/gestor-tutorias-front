@@ -1,23 +1,19 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./css/TablaInformes.css";
 import Swal from "sweetalert2";
+import { Trash, Download } from "react-bootstrap-icons";
 
 // eslint-disable-next-line react/prop-types
 const TablaInformes = ({ id_estudiante, refresh }) => {
     const [informes, setInformes] = useState([]);
     const [itemsPorPagina, setItemsPorPagina] = useState(10);
     const [paginaActual, setPaginaActual] = useState(1);
-    const [selectedRow, setSelectedRow] = useState(null);
     const [estudiante, setEstudiante] = useState(null);
     const navigate = useNavigate();
-    const [contextMenuPosition, setContextMenuPosition] = useState({
-        top: 0,
-        left: 0,
-    });
-    const [showContextMenu, setShowContextMenu] = useState(false);
 
     useEffect(() => {
         getDatosEstudiante();
@@ -36,8 +32,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     };
 
     const handleShowInforme = (id) => {
-        console.log(id);
         navigate(`/informes/${id}`);
+    };
+
+    const handleEditInforme = (id) => {
+        navigate(`/editar-informe/${id}`);
     };
 
     const redirigirInforme = () => {
@@ -69,84 +68,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         }
     };
 
-    const mostrarInformes = () => {
-        const lastIndex = paginaActual * itemsPorPagina;
-        const firstIndex = lastIndex - itemsPorPagina;
-        return informes.slice(firstIndex, lastIndex).map((informe, index) => (
-            <tr
-                key={informe.id}
-                className={informe.id === selectedRow ? "table-active" : ""}
-                onClick={(e) => handleRowClick(e, informe.id)}
-                onDoubleClick={() => handleShowInforme(informe.id)}
-                style={{ cursor: "pointer" }}
-            >
-                <th scope="row">{firstIndex + index + 1}</th>
-                <td>{informe.anexo}</td>
-                <td>{informe.fecha}</td>
-                <td className="align-middle">
-                    <div className="progress">
-                        <div
-                            className="progress-bar bg-primary"
-                            role="progressbar"
-                            style={{ width: `${informe.porcentaje_avance}%` }}
-                            aria-valuenow={informe.porcentaje_avance}
-                            aria-valuemin="0"
-                            aria-valuemax="100"
-                        >
-                            {informe.porcentaje_avance}%
-                        </div>
-                    </div>
-                </td>
-                <td>{informe.estado}</td>
-            </tr>
-        ));
-    };
-
-    const paginate = (pageNumber) => setPaginaActual(pageNumber);
-
-    const pageNumbers = [];
-    for (let i = 1; i <= Math.ceil(informes.length / itemsPorPagina); i++) {
-        pageNumbers.push(i);
-    }
-
-    const handleRowClick = (e, id) => {
-        e.stopPropagation();
-        setSelectedRow(id);
-        setContextMenuPosition({ top: e.pageY, left: e.pageX });
-        setShowContextMenu(true);
-    };
-
-    const handleDocumentClick = (e) => {
-        if (!e.target.closest(".context-menu")) {
-            setShowContextMenu(false);
-            setSelectedRow(null);
-        }
-    };
-
-    useEffect(() => {
-        document.addEventListener("click", handleDocumentClick);
-        return () => {
-            document.removeEventListener("click", handleDocumentClick);
-        };
-    }, []);
-
-    const eliminarInforme = async () => {
-        const url = `http://localhost:3000/informes/${selectedRow}`;
-        console.log(url);
+    const eliminarInforme = async (id) => {
+        const url = `http://localhost:3000/informes/${id}`;
         try {
-            const informe = informes.find(
-                (informe) => informe.id === selectedRow
-            );
+            informes.find((informe) => informe.id === id);
 
-            if (informe.estado === "Firmado") {
-                Swal.fire({
-                    title: "Operación no permitida",
-                    text: "No se puede eliminar un informe que ha sido firmado.",
-                    icon: "error",
-                    confirmButtonText: "OK",
-                });
-                return;
-            }
             const confirmacion = await Swal.fire({
                 title: "¿Está seguro?",
                 text: "Esta acción eliminará el informe y sus actividades asociadas. ¿Desea continuar?",
@@ -159,9 +85,10 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             if (confirmacion.isConfirmed) {
                 await axios.delete(url);
                 getInformes();
+                getDatosEstudiante();
                 Swal.fire({
                     title: "Eliminado",
-                    text: "El Informe se ha sido eliminado correctamente",
+                    text: "El Informe ha sido eliminado correctamente",
                     icon: "success",
                     confirmButtonText: "OK",
                 });
@@ -175,6 +102,79 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             });
         }
     };
+
+    const mostrarInformes = () => {
+        const lastIndex = paginaActual * itemsPorPagina;
+        const firstIndex = lastIndex - itemsPorPagina;
+        const informesPagina = informes.slice(firstIndex, lastIndex);
+        return informesPagina.map((informe, index) => (
+            <tr key={informe.id} style={{ cursor: "pointer" }}>
+                <th scope="row" className="align-middle">
+                    {firstIndex + index + 1}
+                </th>
+                <td
+                    onClick={() => handleShowInforme(informe.id)}
+                    className="align-middle justify-content-center"
+                >
+                    {informe.anexo}
+                </td>
+                <td
+                    onClick={() => handleShowInforme(informe.id)}
+                    className="align-middle"
+                >
+                    {informe.fecha}
+                </td>
+                <td
+                    onClick={() => handleShowInforme(informe.id)}
+                    className="align-middle"
+                >
+                    <div className="progress">
+                        <div
+                            className="progress-bar bg-primary"
+                            role="progressbar"
+                            style={{ width: `${informe.porcentaje_avance}%` }}
+                            aria-valuenow={informe.porcentaje_avance}
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                        >
+                            {informe.porcentaje_avance}%
+                        </div>
+                    </div>
+                </td>
+                <td
+                    onClick={() => handleShowInforme(informe.id)}
+                    className="align-middle"
+                >
+                    {informe.estado}
+                </td>
+                <td className="d-flex justify-content-center align-middle">
+                    <button
+                        title="Descargar Informe"
+                        className="btn hover btn-sm me-2"
+                        onClick={() => handleEditInforme(informe.id)}
+                    >
+                        <Download color="green" size={25} />
+                    </button>
+                    {index === informesPagina.length - 1 && (
+                        <button
+                            title="Eliminar Informe"
+                            className="btn hover btn-sm"
+                            onClick={() => eliminarInforme(informe.id)}
+                        >
+                            <Trash color="red" size={25} />
+                        </button>
+                    )}
+                </td>
+            </tr>
+        ));
+    };
+
+    const paginate = (pageNumber) => setPaginaActual(pageNumber);
+
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(informes.length / itemsPorPagina); i++) {
+        pageNumbers.push(i);
+    }
 
     const updateEstudiante = async () => {
         const request = {
@@ -205,7 +205,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                 timerProgressBar: true,
             });
         } catch (error) {
-            console.error("Error updating student data:", error);
+            console.error("Error fetching informes:", error);
         }
     };
 
@@ -385,7 +385,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 htmlFor="studentName"
                                                 className="form-label"
                                             >
-                                                Fecha de Aprobacion
+                                                Fecha de Aprobación
                                             </label>
                                             <input
                                                 type="date"
@@ -451,10 +451,10 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                     </div>
                                     <div className="d-flex justify-content-center">
                                         <button
-                                            className="btn btn-primary btn-custom  mb-1 "
+                                            className="btn btn-primary btn-custom mb-1"
                                             onClick={updateEstudiante}
                                         >
-                                            Actualizar Informacion
+                                            Actualizar Información
                                         </button>
                                     </div>
                                 </div>
@@ -476,26 +476,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Porcentaje de avance</th>
                                 <th scope="col">Estado</th>
+                                <th scope="col" className="text-center">
+                                    Opciones
+                                </th>
                             </tr>
                         </thead>
                         <tbody>{mostrarInformes()}</tbody>
                     </table>
-                    <div
-                        className="context-menu"
-                        style={{
-                            display: showContextMenu ? "block" : "none",
-                            position: "absolute",
-                            top: `${contextMenuPosition.top}px`,
-                            left: `${contextMenuPosition.left}px`,
-                        }}
-                    >
-                        <button
-                            className="btn btn-primary btn-custom  mb-3 "
-                            onClick={() => eliminarInforme(selectedRow)}
-                        >
-                            Eliminar Informe
-                        </button>
-                    </div>
                     <nav className="d-flex justify-content-between align-items-center mb-5">
                         <ul className="pagination mb-0">
                             {pageNumbers.map((number) => (
