@@ -22,7 +22,6 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     useEffect(() => {
         getDatosEstudiante();
         getInformes();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh, id_estudiante, paginaActual, itemsPorPagina]);
 
     const getInformes = async () => {
@@ -35,16 +34,17 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             console.error("Error fetching informes:", error);
         }
     };
+
     const handleShowInforme = (id) => {
         console.log(id);
         navigate(`/informes/${id}`);
     };
 
     const redirigirInforme = () => {
-        if (estudiante.titulacion.avance_total == 100) {
+        if (estudiante.titulacion.avance_total === 100) {
             Swal.fire({
                 title: "Error",
-                text: "Su porcentaje ya esta completo, no se puede agregar mas informes",
+                text: "Su porcentaje ya está completo, no se pueden agregar más informes",
                 icon: "error",
             });
             return;
@@ -65,7 +65,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             );
             setEstudiante(response.data);
         } catch (error) {
-            console.error("Error fetching informes:", error);
+            console.error("Error fetching student data:", error);
         }
     };
 
@@ -122,6 +122,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             setSelectedRow(null);
         }
     };
+
     useEffect(() => {
         document.addEventListener("click", handleDocumentClick);
         return () => {
@@ -160,7 +161,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                 getInformes();
                 Swal.fire({
                     title: "Eliminado",
-                    text: "El Informe se ha sido eliminada correctamente",
+                    text: "El Informe se ha sido eliminado correctamente",
                     icon: "success",
                     confirmButtonText: "OK",
                 });
@@ -168,7 +169,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         } catch (error) {
             Swal.fire({
                 title: "Error",
-                text: "No se pudo eliminar, intentelo de nuevo mas tarde",
+                text: "No se pudo eliminar, intentelo de nuevo más tarde",
                 icon: "error",
                 confirmButtonText: "OK",
             });
@@ -191,11 +192,20 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             );
             setEstudiante(response.data);
             Swal.fire({
-                text: "Datos del Estudiante Actualizados",
+                toast: true,
+                position: "top-end",
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
                 icon: "success",
+                title: "Datos actualizados",
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
             });
         } catch (error) {
-            console.error("Error fetching informes:", error);
+            console.error("Error updating student data:", error);
         }
     };
 
@@ -212,6 +222,39 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
 
     const handleBack = () => {
         navigate("/principal");
+    };
+
+    const updateEstado = async () => {
+        try {
+            await axios.put(
+                `http://localhost:3000/estudiante/${id_estudiante}/${estudiante.estado}`
+            );
+        } catch (error) {
+            console.error("Error updating state:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (estudiante && estudiante.id && estudiante.estado !== undefined) {
+            updateEstado();
+        }
+    }, [estudiante]);
+
+    const handleEstadoChange = (e) => {
+        setEstudiante((prevEstudiante) => ({
+            ...prevEstudiante,
+            estado: e.target.value,
+        }));
+
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            icon: "success",
+            title: "Estado actualizado",
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true,
+        });
     };
 
     return (
@@ -337,7 +380,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 }
                                             />
                                         </div>
-                                        <div className="col-md-4">
+                                        <div className="col-md-2">
                                             <label
                                                 htmlFor="studentName"
                                                 className="form-label"
@@ -355,6 +398,30 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 onChange={handleDateChange}
                                             />
                                         </div>
+                                        <div className="col-2">
+                                            <label
+                                                htmlFor="studentName"
+                                                className="form-label"
+                                            >
+                                                Estado
+                                            </label>
+                                            <select
+                                                className="form-select"
+                                                value={estudiante.estado}
+                                                onChange={handleEstadoChange}
+                                            >
+                                                <option value="En proceso">
+                                                    En proceso
+                                                </option>
+                                                <option value="Finalizado">
+                                                    Finalizado
+                                                </option>
+                                                <option value="De baja">
+                                                    De baja
+                                                </option>
+                                            </select>
+                                        </div>
+
                                         <div className="col-md-12 mb-3">
                                             <label className="form-label">
                                                 Progreso Total (%)
