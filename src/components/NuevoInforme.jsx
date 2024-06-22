@@ -19,7 +19,7 @@ const NuevoInforme = () => {
     const [fechaAprobacion, setFechaAprobacion] = useState("");
     const [porcentajeAvance, setPorcentajeAvance] = useState("");
     const [fechaCreacionInforme, setFechaCreacionInforme] = useState("");
-    const [avance_total, setAvanceTotal] = useState("");
+    const [avance_total, setAvanceTotal] = useState("0");
     const [temaTitulacion, setTemaTitulacion] = useState("");
     const [value, setValue] = useState("");
     const token = localStorage.getItem("jwtToken");
