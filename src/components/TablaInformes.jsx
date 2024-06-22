@@ -4,25 +4,19 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./css/TablaInformes.css";
 import Swal from "sweetalert2";
+import { Trash, Download } from "react-bootstrap-icons";
 
 // eslint-disable-next-line react/prop-types
 const TablaInformes = ({ id_estudiante, refresh }) => {
     const [informes, setInformes] = useState([]);
     const [itemsPorPagina, setItemsPorPagina] = useState(10);
     const [paginaActual, setPaginaActual] = useState(1);
-    const [selectedRow, setSelectedRow] = useState(null);
     const [estudiante, setEstudiante] = useState(null);
     const navigate = useNavigate();
-    const [contextMenuPosition, setContextMenuPosition] = useState({
-        top: 0,
-        left: 0,
-    });
-    const [showContextMenu, setShowContextMenu] = useState(false);
 
     useEffect(() => {
         getDatosEstudiante();
         getInformes();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [refresh, id_estudiante, paginaActual, itemsPorPagina]);
 
     const getInformes = async () => {
@@ -35,16 +29,20 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             console.error("Error fetching informes:", error);
         }
     };
+
     const handleShowInforme = (id) => {
-        console.log(id);
         navigate(`/informes/${id}`);
     };
 
+    const handleEditInforme = (id) => {
+        navigate(`/editar-informe/${id}`);
+    };
+
     const redirigirInforme = () => {
-        if (estudiante.titulacion.avance_total == 100) {
+        if (estudiante.titulacion.avance_total === 100) {
             Swal.fire({
                 title: "Error",
-                text: "Su porcentaje ya esta completo, no se puede agregar mas informes",
+                text: "Su porcentaje ya está completo, no se pueden agregar más informes",
                 icon: "error",
             });
             return;
@@ -69,21 +67,53 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         }
     };
 
+    const eliminarInforme = async (id) => {
+        const url = `http://localhost:3000/informes/${id}`;
+        try {
+            const informe = informes.find(
+                (informe) => informe.id === id
+            );
+
+            const confirmacion = await Swal.fire({
+                title: "¿Está seguro?",
+                text: "Esta acción eliminará el informe y sus actividades asociadas. ¿Desea continuar?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Sí, eliminar",
+                cancelButtonText: "Cancelar",
+            });
+
+            if (confirmacion.isConfirmed) {
+                await axios.delete(url);
+                getInformes();
+                getDatosEstudiante();
+                Swal.fire({
+                    title: "Eliminado",
+                    text: "El Informe ha sido eliminado correctamente",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                title: "Error",
+                text: "No se pudo eliminar, intentelo de nuevo más tarde",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+        }
+    };
+
     const mostrarInformes = () => {
         const lastIndex = paginaActual * itemsPorPagina;
         const firstIndex = lastIndex - itemsPorPagina;
-        return informes.slice(firstIndex, lastIndex).map((informe, index) => (
-            <tr
-                key={informe.id}
-                className={informe.id === selectedRow ? "table-active" : ""}
-                onClick={(e) => handleRowClick(e, informe.id)}
-                onDoubleClick={() => handleShowInforme(informe.id)}
-                style={{ cursor: "pointer" }}
-            >
+        const informesPagina = informes.slice(firstIndex, lastIndex);
+        return informesPagina.map((informe, index) => (
+            <tr key={informe.id} style={{ cursor: "pointer" }}>
                 <th scope="row">{firstIndex + index + 1}</th>
-                <td>{informe.anexo}</td>
-                <td>{informe.fecha}</td>
-                <td className="align-middle">
+                <td onClick={() => handleShowInforme(informe.id)}>{informe.anexo}</td>
+                <td onClick={() => handleShowInforme(informe.id)}>{informe.fecha}</td>
+                <td onClick={() => handleShowInforme(informe.id)} className="align-middle">
                     <div className="progress">
                         <div
                             className="progress-bar bg-primary"
@@ -97,7 +127,25 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                         </div>
                     </div>
                 </td>
-                <td>{informe.estado}</td>
+                <td onClick={() => handleShowInforme(informe.id)}>{informe.estado}</td>
+                <td className="d-flex justify-content-center">
+                    <button
+                        title="Descargar Informe"
+                        className="btn btn-danger btn-sm me-2"
+                        onClick={() => handleEditInforme(informe.id)}
+                    >
+                        <Download color="green" size={25}/>
+                    </button>
+                    {index === informesPagina.length - 1 && (
+                        <button
+                            title="Eliminar Informe"
+                            className="btn btn-danger btn-sm"
+                            onClick={() => eliminarInforme(informe.id)}
+                        >
+                            <Trash color= 'red' size={25}/>
+                        </button>
+                    )}
+                </td>
             </tr>
         ));
     };
@@ -108,72 +156,6 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     for (let i = 1; i <= Math.ceil(informes.length / itemsPorPagina); i++) {
         pageNumbers.push(i);
     }
-
-    const handleRowClick = (e, id) => {
-        e.stopPropagation();
-        setSelectedRow(id);
-        setContextMenuPosition({ top: e.pageY, left: e.pageX });
-        setShowContextMenu(true);
-    };
-
-    const handleDocumentClick = (e) => {
-        if (!e.target.closest(".context-menu")) {
-            setShowContextMenu(false);
-            setSelectedRow(null);
-        }
-    };
-    useEffect(() => {
-        document.addEventListener("click", handleDocumentClick);
-        return () => {
-            document.removeEventListener("click", handleDocumentClick);
-        };
-    }, []);
-
-    const eliminarInforme = async () => {
-        const url = `http://localhost:3000/informes/${selectedRow}`;
-        console.log(url);
-        try {
-            const informe = informes.find(
-                (informe) => informe.id === selectedRow
-            );
-
-            if (informe.estado === "Firmado") {
-                Swal.fire({
-                    title: "Operación no permitida",
-                    text: "No se puede eliminar un informe que ha sido firmado.",
-                    icon: "error",
-                    confirmButtonText: "OK",
-                });
-                return;
-            }
-            const confirmacion = await Swal.fire({
-                title: "¿Está seguro?",
-                text: "Esta acción eliminará el informe y sus actividades asociadas. ¿Desea continuar?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Sí, eliminar",
-                cancelButtonText: "Cancelar",
-            });
-
-            if (confirmacion.isConfirmed) {
-                await axios.delete(url);
-                getInformes();
-                Swal.fire({
-                    title: "Eliminado",
-                    text: "El Informe se ha sido eliminada correctamente",
-                    icon: "success",
-                    confirmButtonText: "OK",
-                });
-            }
-        } catch (error) {
-            Swal.fire({
-                title: "Error",
-                text: "No se pudo eliminar, intentelo de nuevo mas tarde",
-                icon: "error",
-                confirmButtonText: "OK",
-            });
-        }
-    };
 
     const updateEstudiante = async () => {
         const request = {
@@ -195,7 +177,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                 icon: "success",
             });
         } catch (error) {
-            console.error("Error fetching informes:", error);
+            console.error("Error updating estudiante:", error);
         }
     };
 
@@ -254,15 +236,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                     Ingeniería en Software
                                                 </option>
                                                 <option value="Ingeniería en Telecomunicaciones">
-                                                    Ingeniería en
-                                                    Telecomunicaciones
+                                                    Ingeniería en Telecomunicaciones
                                                 </option>
                                                 <option value="Ingeniería Industrial">
                                                     Ingeniería Industrial
                                                 </option>
                                                 <option value="Ingeniería en Automatización y Robótica">
-                                                    Ingeniería en Automatización
-                                                    y Robótica
+                                                    Ingeniería en Automatización y Robótica
                                                 </option>
                                             </select>
                                         </div>
@@ -274,16 +254,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 type="text"
                                                 className="form-control"
                                                 maxLength="150"
-                                                value={
-                                                    estudiante.titulacion.tema
-                                                }
+                                                value={estudiante.titulacion.tema}
                                                 onChange={(e) =>
                                                     setEstudiante({
                                                         ...estudiante,
                                                         titulacion: {
                                                             ...estudiante.titulacion,
-                                                            tema: e.target
-                                                                .value,
+                                                            tema: e.target.value,
                                                         },
                                                     })
                                                 }
@@ -299,16 +276,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 type="text"
                                                 className="form-control"
                                                 maxLength="30"
-                                                value={
-                                                    estudiante.persona.nombre
-                                                }
+                                                value={estudiante.persona.nombre}
                                                 onChange={(e) =>
                                                     setEstudiante({
                                                         ...estudiante,
                                                         persona: {
                                                             ...estudiante.persona,
-                                                            nombre: e.target
-                                                                .value,
+                                                            nombre: e.target.value,
                                                         },
                                                     })
                                                 }
@@ -322,16 +296,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 type="text"
                                                 className="form-control"
                                                 maxLength="30"
-                                                value={
-                                                    estudiante.persona.apellido
-                                                }
+                                                value={estudiante.persona.apellido}
                                                 onChange={(e) =>
                                                     setEstudiante({
                                                         ...estudiante,
                                                         persona: {
                                                             ...estudiante.persona,
-                                                            apellido:
-                                                                e.target.value,
+                                                            apellido: e.target.value,
                                                         },
                                                     })
                                                 }
@@ -342,16 +313,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                 htmlFor="studentName"
                                                 className="form-label"
                                             >
-                                                Fecha de Aprobacion
+                                                Fecha de Aprobación
                                             </label>
                                             <input
                                                 type="date"
                                                 className="form-control"
                                                 id="studentName"
-                                                value={
-                                                    estudiante.titulacion
-                                                        .fecha_aprobacion
-                                                }
+                                                value={estudiante.titulacion.fecha_aprobacion}
                                                 onChange={handleDateChange}
                                             />
                                         </div>
@@ -366,28 +334,21 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                                     style={{
                                                         width: `${estudiante.titulacion.avance_total}%`,
                                                     }}
-                                                    aria-valuenow={
-                                                        estudiante.titulacion
-                                                            .avance_total
-                                                    }
+                                                    aria-valuenow={estudiante.titulacion.avance_total}
                                                     aria-valuemin="0"
                                                     aria-valuemax="100"
                                                 >
-                                                    {
-                                                        estudiante.titulacion
-                                                            .avance_total
-                                                    }
-                                                    %
+                                                    {estudiante.titulacion.avance_total}%
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="d-flex justify-content-center">
                                         <button
-                                            className="btn btn-primary btn-custom  mb-1 "
+                                            className="btn btn-primary btn-custom mb-1"
                                             onClick={updateEstudiante}
                                         >
-                                            Actualizar Informacion
+                                            Actualizar Información
                                         </button>
                                     </div>
                                 </div>
@@ -409,26 +370,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                                 <th scope="col">Fecha</th>
                                 <th scope="col">Porcentaje de avance</th>
                                 <th scope="col">Estado</th>
+                                <th scope="col" className="text-center">Opciones</th>
                             </tr>
                         </thead>
                         <tbody>{mostrarInformes()}</tbody>
                     </table>
-                    <div
-                        className="context-menu"
-                        style={{
-                            display: showContextMenu ? "block" : "none",
-                            position: "absolute",
-                            top: `${contextMenuPosition.top}px`,
-                            left: `${contextMenuPosition.left}px`,
-                        }}
-                    >
-                        <button
-                            className="btn btn-primary btn-custom  mb-3 "
-                            onClick={() => eliminarInforme(selectedRow)}
-                        >
-                            Eliminar Informe
-                        </button>
-                    </div>
                     <nav className="d-flex justify-content-between align-items-center mb-5">
                         <ul className="pagination mb-0">
                             {pageNumbers.map((number) => (
@@ -445,9 +391,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                         <div>
                             <select
                                 onChange={(e) =>
-                                    setItemsPorPagina(
-                                        parseInt(e.target.value, 10)
-                                    )
+                                    setItemsPorPagina(parseInt(e.target.value, 10))
                                 }
                                 value={itemsPorPagina}
                                 className="form-select"
