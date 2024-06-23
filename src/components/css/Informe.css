@@ -65,3 +65,27 @@
     width: 15rem;
     margin-right: 2rem;
 }
+
+.custom-switch .form-check-input {
+    background-color: white;
+    border-color: grey;
+}
+
+.custom-switch .form-check-input:checked {
+    background-color: #9B2B2B;
+    border-color: #9B2B2B;
+}
+
+.custom-switch .form-check-input:focus {
+    box-shadow: none;
+}
+
+.custom-switch .form-check-input:checked::before {
+    background-color: #9B2B2B;
+    border-color: #9B2B2B;
+}
+
+.custom-switch .form-check-input::before {
+    background-color: white;
+    border-color: grey;
+}
