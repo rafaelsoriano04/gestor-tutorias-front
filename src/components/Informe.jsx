@@ -8,6 +8,7 @@ import { jwtDecode } from "jwt-decode";
 import Navbar from "./Navbar";
 import { PencilSquare } from "react-bootstrap-icons";
 
+
 const Informe = () => {
     const navigate = useNavigate();
     const [actividades, setActividades] = useState([]);
@@ -26,6 +27,7 @@ const Informe = () => {
         estado: "No firmado",
         actividades: [],
     });
+    const [idTitulacion, setIdTitulacion] = useState("");
     const [actividadesEliminadas, setActividadesEliminadas] = useState([]);
 
     // Función para cargar datos del estudiante
@@ -108,6 +110,29 @@ const Informe = () => {
             const url = `http://localhost:3000/informes`;
             await axios.put(url, updatedInforme);
             await eliminarActividades();
+
+            //AQUI SE DEBE DE ACTUALIZAR EL PORCENTAJE DEL ESTUDIANTE  SI ES EL ULTIMO
+            const esUltimo = localStorage.getItem('esUltimo') === 'true';
+
+            if (esUltimo) {
+                const avance = {
+                    nuevoAvance: informe.porcentaje_avance, // Asegura que actividades están actualizadas
+                };
+                const url = `http://localhost:3000/titulacion/${idTitulacion}/avance`;
+                await axios.put(url, avance);
+
+            }
+
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                icon: "success",
+                title: "Informe Actualizado",
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+            });
+
             getActividades();
             getInforme();
             setFirmado(informe.estado === "Firmado");
@@ -181,14 +206,15 @@ const Informe = () => {
                 if (response.data) {
                     setNombreEstudiante(
                         response.data.persona.nombre +
-                            " " +
-                            response.data.persona.apellido
+                        " " +
+                        response.data.persona.apellido
                     );
                     setTemaTitulacion(response.data.titulacion.tema || "");
                     setCarreraEstudiante(response.data.carrera || "");
                     setFechaAprobacion(
                         response.data.titulacion.fecha_aprobacion || ""
                     );
+                    setIdTitulacion(response.data.titulacion.id);
                     setAvanceTotal(response.data.titulacion.avance_total);
                 }
             }
@@ -233,7 +259,7 @@ const Informe = () => {
             (newValue === "" ||
                 (Number(newValue) >= 1 &&
                     Number(newValue) <=
-                        100)) /*&& (Number(newValue+avance_total)>100)*/
+                    100)) /*&& (Number(newValue+avance_total)>100)*/
         ) {
             setInforme((informe) => ({
                 ...informe,
@@ -349,7 +375,7 @@ const Informe = () => {
                         <button
                             type="button"
                             className="btn btn-primary btn-floating"
-                            // onClick={handlePrevisualizacion}
+                        // onClick={handlePrevisualizacion}
                         >
                             <i className="fa fa-eye fa-2"></i>
                         </button>

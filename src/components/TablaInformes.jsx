@@ -32,11 +32,36 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     };
 
     const abrirInforme = (idInforme, numeroInforme) => {
-        let id = estudiante.titulacion.id;
-        localStorage.setItem("idInforme", idInforme);
-        localStorage.setItem("numeroInforme", numeroInforme);
-        navigate(`/informe/${id}`);
+
+        const ultimoInforme = informes[informes.length - 1].id;
+    
+        if (idInforme !== ultimoInforme) {
+            Swal.fire({
+                title: 'Confirmación',
+                text: 'No se esta editando un informe reciente. ¿Deseas editar bajo su responsabilidad?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let id = estudiante.titulacion.id;
+                    localStorage.setItem('esUltimo', false)
+                    localStorage.setItem('idInforme', idInforme);
+                    localStorage.setItem('numeroInforme', numeroInforme);
+                    navigate(`/informe/${id}`);
+                }
+            });
+        } else {
+            // Si el informe es el último, navega directamente
+            let id = estudiante.titulacion.id;
+            localStorage.setItem('esUltimo', true);
+            localStorage.setItem('numeroInforme', numeroInforme);
+            localStorage.setItem('idInforme', idInforme);
+            navigate(`/informe/${id}`);
+        }
     };
+    
 
     const redirigirInforme = () => {
         if (estudiante.titulacion.avance_total === 100) {
