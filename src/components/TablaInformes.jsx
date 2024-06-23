@@ -31,19 +31,18 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         }
     };
 
-    const handleShowInforme = (id) => {
-        navigate(`/informes/${id}`);
-    };
-
-    const handleEditInforme = (id) => {
-        navigate(`/editar-informe/${id}`);
+    const abrirInforme = (idInforme, numeroInforme) => {
+        let id = estudiante.titulacion.id;
+        localStorage.setItem("idInforme", idInforme);
+        localStorage.setItem("numeroInforme", numeroInforme);
+        navigate(`/informe/${id}`);
     };
 
     const redirigirInforme = () => {
         if (estudiante.titulacion.avance_total === 100) {
             Swal.fire({
                 title: "Error",
-                text: "Su porcentaje ya está completo, no se pueden agregar más informes",
+                text: "El porcentaje ya está completo, no se pueden agregar más informes",
                 icon: "error",
             });
             return;
@@ -109,23 +108,35 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         const informesPagina = informes.slice(firstIndex, lastIndex);
         return informesPagina.map((informe, index) => (
             <tr key={informe.id} style={{ cursor: "pointer" }}>
-                <th scope="row" className="align-middle">
+                <th
+                    scope="row"
+                    className="align-middle"
+                    onDoubleClick={() =>
+                        abrirInforme(informe.id, firstIndex + index + 1)
+                    }
+                >
                     {firstIndex + index + 1}
                 </th>
                 <td
-                    onClick={() => handleShowInforme(informe.id)}
+                    onDoubleClick={() =>
+                        abrirInforme(informe.id, firstIndex + index + 1)
+                    }
                     className="align-middle justify-content-center"
                 >
                     {informe.anexo}
                 </td>
                 <td
-                    onClick={() => handleShowInforme(informe.id)}
+                    onDoubleClick={() =>
+                        abrirInforme(informe.id, firstIndex + index + 1)
+                    }
                     className="align-middle"
                 >
                     {informe.fecha}
                 </td>
                 <td
-                    onClick={() => handleShowInforme(informe.id)}
+                    onDoubleClick={() =>
+                        abrirInforme(informe.id, firstIndex + index + 1)
+                    }
                     className="align-middle"
                 >
                     <div className="progress">
@@ -142,7 +153,9 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                     </div>
                 </td>
                 <td
-                    onClick={() => handleShowInforme(informe.id)}
+                    onDoubleClick={() =>
+                        abrirInforme(informe.id, firstIndex + index + 1)
+                    }
                     className="align-middle"
                 >
                     {informe.estado}
@@ -151,7 +164,6 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
                     <button
                         title="Descargar Informe"
                         className="btn hover btn-sm me-2"
-                        onClick={() => handleEditInforme(informe.id)}
                     >
                         <Download color="green" size={25} />
                     </button>

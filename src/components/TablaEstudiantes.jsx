@@ -69,7 +69,8 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
 
     const cargarEstudiantes = () => {
         const estudiantesFiltrados = estudiantes.filter((estudiante) => {
-            const nombreCompleto = `${estudiante.persona.nombre} ${estudiante.persona.apellido}`;
+            const filtro = filtroNombreCedula.toLowerCase();
+
             return (
                 (filtroEstado === "" || estudiante.estado === filtroEstado) &&
                 (filtroCarrera === "" ||
@@ -78,9 +79,12 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                     estudiante.persona.identificacion.startsWith(
                         filtroNombreCedula
                     ) ||
-                    nombreCompleto
+                    estudiante.persona.nombre
                         .toLowerCase()
-                        .includes(filtroNombreCedula.toLowerCase()))
+                        .startsWith(filtro) ||
+                    estudiante.persona.apellido
+                        .toLowerCase()
+                        .startsWith(filtro))
             );
         });
 
@@ -101,11 +105,7 @@ const TablaEstudiantes = ({ id_docente, refresh, onStudentSelect }) => {
                 >
                     <th scope="row">{primerItem + index + 1}</th>
                     <td>{estudiante.persona.identificacion}</td>
-                    <td>
-                        {estudiante.persona.nombre +
-                            " " +
-                            estudiante.persona.apellido}
-                    </td>
+                    <td>{`${estudiante.persona.nombre} ${estudiante.persona.apellido}`}</td>
                     <td>{estudiante.estado}</td>
                     <td className="align-middle">
                         <div className="progress">
