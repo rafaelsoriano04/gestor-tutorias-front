@@ -19,7 +19,7 @@ const NuevoInforme = () => {
     const [fechaAprobacion, setFechaAprobacion] = useState("");
     const [porcentajeAvance, setPorcentajeAvance] = useState("");
     const [fechaCreacionInforme, setFechaCreacionInforme] = useState("");
-    const [avance_total, setAvanceTotal] = useState("0");
+    const [avance_total, setAvanceTotal] = useState(0);
     const [temaTitulacion, setTemaTitulacion] = useState("");
     const [value, setValue] = useState("");
     const token = localStorage.getItem("jwtToken");
@@ -64,7 +64,7 @@ const NuevoInforme = () => {
     // Agrega una nueva actividad a la lista de actividades
     const agregarActividad = () => {
         for (let actividad of actividades) {
-            if (!actividad.descripcion || !actividad.fecha) {
+            if (!actividad.descripcion || !actividad.fecha_actividad) {
                 Swal.fire({
                     title: "Operación no permitida",
                     text: "Todos los campos de las actividades deben estar llenos.",
@@ -74,7 +74,10 @@ const NuevoInforme = () => {
                 return;
             }
         }
-        setActividades([...actividades, { descripcion: "", fecha: "" }]);
+        setActividades([
+            ...actividades,
+            { descripcion: "", fecha_actividad: "" },
+        ]);
     };
 
     // Actualiza la descripción de una actividad específica
@@ -87,7 +90,7 @@ const NuevoInforme = () => {
     // Actualiza la fecha de una actividad específica
     const handleFechaChange = (index, event) => {
         const newActividades = [...actividades];
-        newActividades[index].fecha = event.target.value;
+        newActividades[index].fecha_actividad = event.target.value;
         setActividades(newActividades);
     };
 
@@ -181,13 +184,17 @@ const NuevoInforme = () => {
                 if (response.data) {
                     setIdEstudiante(response.data.id || "");
                     setIdTitulacion(response.data.titulacion.id || "");
-                    setNombreEstudiante(response.data.persona.nombre || "");
+                    setNombreEstudiante(
+                        response.data.persona.nombre +
+                            " " +
+                            response.data.persona.apellido
+                    );
                     setTemaTitulacion(response.data.titulacion.tema || "");
                     setCarreraEstudiante(response.data.carrera || "");
                     setFechaAprobacion(
                         response.data.titulacion.fecha_aprobacion || ""
                     );
-                    setAvanceTotal(response.data.titulacion.avance_total || "");
+                    setAvanceTotal(response.data.titulacion.avance_total);
                 }
             }
         } catch (error) {
@@ -219,7 +226,7 @@ const NuevoInforme = () => {
         }
 
         for (let actividad of actividades) {
-            if (!actividad.descripcion || !actividad.fecha) {
+            if (!actividad.descripcion || !actividad.fecha_actividad) {
                 Swal.fire({
                     title: "Operación no permitida",
                     text: "Todos los campos de las actividades deben estar llenos.",
@@ -256,24 +263,24 @@ const NuevoInforme = () => {
             id_titulacion: idTitulacion,
             id_estudiante: idEstudiante,
             estado: estadoFirmado,
+            actividades,
         };
 
         try {
-            const response = await axios.post(
-                "http://localhost:3000/informes",
-                informe
-            );
-            const informeId = response.data.id;
-
-            // Guardar actividades relacionadas
-            for (let actividad of actividades) {
-                await axios.post("http://localhost:3000/actividades", {
-                    descripcion: actividad.descripcion,
-                    fecha_actividad: actividad.fecha,
-                    informe: informeId, // Se usa el ID del informe recién creado
-                });
-            }
-
+            await axios.post("http://localhost:3000/informes", informe);
+            Swal.fire({
+                toast: true,
+                position: "top-end",
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                },
+                icon: "success",
+                title: "Informe guardado",
+                showConfirmButton: false,
+                timer: 2500,
+                timerProgressBar: true,
+            });
             handleCancelar();
         } catch (error) {
             if (error.response) {
@@ -294,31 +301,25 @@ const NuevoInforme = () => {
         <div>
             <Navbar nombre={persona.nombre} apellido={persona.apellido} />
 
-            <div className="container mt-4">
-                <h1 className="text-center mb-4">Nuevo Informe</h1>
-                <div className="mb-3">
-                    <button
-                        type="button"
-                        className="btn btn-primary btn-floating"
-                        onClick={handleRegresar}
-                    >
-                        <i className="fa fa-arrow-left fa-2"></i>
-                    </button>
-                </div>
-                <div className="row container mb-3 ">
-                    <div className="col-md-4">
-                        <label htmlFor="studentName" className="form-label">
-                            Nombre del Estudiante:
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="studentName"
-                            value={nombreEstudiante}
-                            readOnly
-                        />
+            <div className="container mt-4 mb-4">
+                <div className="row mb-4">
+                    <div className="col d-flex justify-content-start align-items-center">
+                        <button
+                            type="button"
+                            className="btn btn-primary btn-floating"
+                            onClick={handleRegresar}
+                        >
+                            <i className="fa fa-arrow-left fa-2"></i>
+                        </button>
                     </div>
-                    <div className="col-md-4">
+                    <div className="col d-flex justify-content-center align-items-center">
+                        <h1>Nuevo Informe</h1>
+                    </div>
+                    <div className="col"></div>
+                </div>
+
+                <div className="row container mb-3">
+                    <div className="col-4">
                         <label htmlFor="studentName" className="form-label">
                             Carrera del Estudiante:
                         </label>
@@ -327,24 +328,10 @@ const NuevoInforme = () => {
                             className="form-control"
                             id="studentName"
                             value={carreraEstudiante}
-                            readOnly
+                            disabled
                         />
                     </div>
-                    <div className="col-md-4">
-                        <label htmlFor="studentName" className="form-label">
-                            Fecha de Aprobacion
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            id="studentName"
-                            value={fechaAprobacion}
-                            readOnly
-                        />
-                    </div>
-                </div>
-                <div className="row container">
-                    <div className="col-md-4">
+                    <div className="col-8">
                         <label htmlFor="thesisTopic" className="form-label">
                             Tema:
                         </label>
@@ -353,15 +340,59 @@ const NuevoInforme = () => {
                             className="form-control"
                             id="thesisTopic"
                             value={temaTitulacion}
-                            readOnly
+                            disabled
                         />
                     </div>
-                    <div className="col-md-4">
+                </div>
+                <div className="row mb-3 d-flex justify-content-center">
+                    <div className="col-3">
+                        <label htmlFor="studentName" className="form-label">
+                            Estudiante:
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="studentName"
+                            value={nombreEstudiante}
+                            disabled
+                        />
+                    </div>
+                    <div className="col-2">
+                        <label htmlFor="studentName" className="form-label">
+                            Fecha de Aprobación:
+                        </label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="studentName"
+                            value={fechaAprobacion}
+                            disabled
+                        />
+                    </div>
+                    <div className="col-2">
+                        <label htmlFor="number-input" className="form-label">
+                            Porcentaje Titulación:
+                        </label>
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                value={avance_total}
+                                onChange={handleChange}
+                                className="form-control"
+                                id="number-input"
+                                disabled
+                            />
+                            <span className="input-group-text">%</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="row d-flex justify-content-center">
+                    <div className="col-2">
                         <label
                             htmlFor="notificationDate"
                             className="form-label"
                         >
-                            Fecha de Creación del Informe:
+                            Fecha del Informe:
                         </label>
                         <input
                             type="date"
@@ -376,29 +407,22 @@ const NuevoInforme = () => {
                         />
                     </div>
                     <div className="col-md-2">
-                        <label htmlFor="number-input" className="form-label">
+                        <label
+                            htmlFor="porcentaje-avance-input"
+                            className="form-label"
+                        >
                             Porcentaje de avance:
                         </label>
-                        <input
-                            type="text"
-                            value={value}
-                            onChange={handleChange}
-                            className="form-control"
-                            id="number-input"
-                        />
-                    </div>
-                    <div className="col-md-2">
-                        <label htmlFor="number-input" className="form-label">
-                            Porcentaje actual:
-                        </label>
-                        <input
-                            type="text"
-                            value={avance_total}
-                            onChange={handleChange}
-                            className="form-control"
-                            id="number-input"
-                            readOnly
-                        />
+                        <div className="input-group">
+                            <input
+                                type="text"
+                                value={value}
+                                onChange={handleChange}
+                                className="form-control"
+                                id="porcentaje-avance-input"
+                            />
+                            <span className="input-group-text">%</span>
+                        </div>
                     </div>
                 </div>
                 <div className="form-check form-switch mt-3 py-3 ">
@@ -440,7 +464,7 @@ const NuevoInforme = () => {
                                 <td>
                                     <input
                                         type="date"
-                                        value={actividad.fecha}
+                                        value={actividad.fecha_actividad}
                                         onChange={(e) =>
                                             handleFechaChange(index, e)
                                         }

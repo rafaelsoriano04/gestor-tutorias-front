@@ -4,10 +4,11 @@ import "./App.css";
 import imgInicio from "./assets/inicio.png";
 import Login from "./components/Login.jsx";
 import Principal from "./components/Principal";
-import Informe from "./components/Informe.jsx";
+import Informes from "./components/Informes.jsx";
 import PrivateRoute from "./routes/PrivateRoute";
 import "./styles/main.scss";
 import NuevoInforme from "./components/NuevoInforme.jsx";
+import Informe from "./components/Informe.jsx";
 
 function App() {
     // Función para alternar entre Login y Register
@@ -45,13 +46,19 @@ function App() {
                 <Route element={<PrivateRoute />}>
                     <Route
                         path="/informes/:idEstudiante"
-                        element={<Informe />}
+                        element={<Informes />}
                     />
                 </Route>
                 <Route element={<PrivateRoute />}>
                     <Route
                         path="/nuevo-informe/:id_titulacion"
                         element={<NuevoInforme />}
+                    />
+                </Route>
+                <Route element={<PrivateRoute />}>
+                    <Route
+                        path="/informe/:idEstudiante"
+                        element={<Informe />}
                     />
                 </Route>
             </Routes>
