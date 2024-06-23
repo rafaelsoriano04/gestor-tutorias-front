@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import ReactDOM from 'react-dom';
 import "./css/Informe.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "./Navbar";
+import { PDFViewer } from "@react-pdf/renderer";
+import VisualizadorPDF from "./VisualizadorPDF";
 
 const NuevoInforme = () => {
     const navigate = useNavigate();
@@ -24,6 +27,7 @@ const NuevoInforme = () => {
     const [value, setValue] = useState("");
     const token = localStorage.getItem("jwtToken");
     const [persona, setPersona] = useState({});
+
 
     //obtiene la fecha actual en formato YYYY-MM-DD.
     const getCurrentDate = () => {
@@ -290,6 +294,33 @@ const NuevoInforme = () => {
         }
     };
 
+    const anexo = "5";
+    const data = {
+        nombreEstudiante: nombreEstudiante,
+        carrera: 'Ingeniería en Sistemas',
+        fechaAprobacion: fechaAprobacion,
+        tema: temaTitulacion,
+        fechaCreacion: fechaCreacionInforme,
+        avance: avance_total+"%",
+        actividades: actividades,
+        anexo: anexo,
+        nombreDocente: persona.nombre +" "+ persona.apellido,
+      };
+
+    
+    const handleOpenPDF = () => {
+        const pdfWindow = window.open('', '_blank');
+        const container = pdfWindow.document.createElement('div');
+        pdfWindow.document.body.appendChild(container);
+    
+        const root = ReactDOM.createRoot(container);
+        root.render(
+      <PDFViewer style={{ width: '100%', height: '100vh' }}>
+        <VisualizadorPDF {...data} />
+      </PDFViewer>
+    );
+      };
+
     return (
         <div>
             <Navbar nombre={persona.nombre} apellido={persona.apellido} />
@@ -460,6 +491,7 @@ const NuevoInforme = () => {
                         ))}
                     </tbody>
                 </table>
+                <PDFViewer></PDFViewer>
                 <div className="d-flex justify-content-end">
                     <button
                         className="btn btn-primary"
@@ -473,6 +505,9 @@ const NuevoInforme = () => {
                         Guardar
                     </button>
                 </div>
+                <button className="btn btn-primary" onClick={handleOpenPDF}>
+                        Ver PDF
+                    </button>
             </div>
         </div>
     );
