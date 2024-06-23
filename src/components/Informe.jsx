@@ -7,6 +7,9 @@ import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "./Navbar";
 import { PencilSquare } from "react-bootstrap-icons";
+import { PDFViewer } from "@react-pdf/renderer";
+import ReactDOM from 'react-dom';
+import VisualizadorPDF from "./VisualizadorPDF";
 
 const Informe = () => {
     const navigate = useNavigate();
@@ -327,6 +330,31 @@ const Informe = () => {
         guardar();
     };
 
+    const data = {
+        nombreEstudiante: nombreEstudiante,
+        fechaAprobacion: fechaAprobacion,
+        tema: temaTitulacion,
+        fechaCreacion: informe.fecha,
+        avance: informe.porcentaje_avance+"%",
+        actividades: actividades,
+        anexo: 5,
+        nombreDocente: persona.nombre +" "+ persona.apellido,
+      };
+
+    const handleOpenPDF = () => {
+        const pdfWindow = window.open('', 'PDFViewer', 'width=800,height=700');
+        const container = pdfWindow.document.createElement('div');
+        pdfWindow.document.body.appendChild(container);
+    
+        const root = ReactDOM.createRoot(container);
+        root.render(
+      <PDFViewer style={{ width: '100%', height: '95vh' }}>
+        <VisualizadorPDF {...data} />
+      </PDFViewer>
+    );
+      };
+
+
     return (
         <div>
             <Navbar nombre={persona.nombre} apellido={persona.apellido} />
@@ -349,7 +377,7 @@ const Informe = () => {
                         <button
                             type="button"
                             className="btn btn-primary btn-floating"
-                            // onClick={handlePrevisualizacion}
+                             onClick={handleOpenPDF}
                         >
                             <i className="fa fa-eye fa-2"></i>
                         </button>

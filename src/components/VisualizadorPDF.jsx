@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { Page,Image, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import encabezado from '../assets/encabezadoPDF.png'
 
 // Estilos para el documento PDF
 const styles = StyleSheet.create({
     page: {
       flexDirection: 'column',
-      backgroundColor: '#E4E4E4',
+      backgroundColor: 'white',
       padding: 30,
     },
     section: {
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
       marginBottom: 10,
       textAlign: 'center',
     },
-    subtitleRow: {
+    tituloFila: {
       flexDirection: 'row',
       marginBottom: 5,
     },
@@ -62,6 +63,7 @@ const styles = StyleSheet.create({
     },
     firma:{
         fontSize: 11,
+        fontWeight: 'bold',
         textAlign: 'center',
     },
     firmaContainer:{
@@ -72,28 +74,33 @@ const styles = StyleSheet.create({
   const VisualizadorPDF = ({ nombreEstudiante, fechaAprobacion, tema, fechaCreacion, avance, actividades, anexo, nombreDocente }) => (
     <Document>
       <Page size="A4" style={styles.page}>
+        <Image src={encabezado} />
         <View style={styles.section}>
           <Text style={styles.header}>Anexo {anexo}</Text>
           <Text style={styles.header}>FACULTAD DE INGENIERÍA EN SISTEMAS, ELECTRÓNICA E INDUSTRIAL CARRERA DE TECNOLOGÍAS DE LA INFORMACIÓN</Text>
           <Text style={styles.header}>INFORME MENSUAL DEL AVANCE DEL TRABAJO DE TITULACIÓN  </Text>
-          <View style={styles.subtitleRow}>
+          <View style={styles.tituloFila}>
             <Text style={styles.subtitulos}>FECHA: </Text>
             <Text style={styles.text}>{fechaCreacion}</Text>
           </View>
-          <View style={styles.subtitleRow}>
+          <View style={styles.tituloFila}>
             <Text style={styles.subtitulos}>NOMBRE DEL ESTUDIANTE: </Text>
             <Text style={styles.text}>{nombreEstudiante}</Text>
           </View>
-          <View style={styles.subtitleRow}>
+          <View style={styles.tituloFila}>
             <Text style={styles.subtitulos}>MODALIDAD DE TITULACIÓN: </Text>
             <Text style={styles.text}>PROYECTO DE INVESTIGACIÓN</Text>
           </View>
-          <View style={styles.subtitleRow}>
+          <View style={styles.tituloFila}>
             <Text style={styles.subtitulos}>TEMA DEL TRABAJO DE TITULACIÓN: </Text>
             <Text style={styles.text}>{tema}</Text>
           </View>
-            <Text style={styles.subtitulos}>FECHA DE APROBACIÓN DE LA PROPUESTA DEL PERFIL DEL TRABAJO DE TITULACIÓN POR EL CONSEJO DIRECTIVO: </Text><Text style={styles.text}>{fechaAprobacion}</Text>
-          <View style={styles.subtitleRow}>
+          <View>
+            <Text style={styles.subtitulos}>FECHA DE APROBACIÓN DE LA PROPUESTA DEL PERFIL DEL TRABAJO DE TITULACIÓN POR EL CONSEJO DIRECTIVO: </Text>
+            <Text style={styles.text}>{fechaAprobacion}</Text>
+          </View>
+          
+          <View style={styles.tituloFila}>
             <Text style={styles.subtitulos}>PORCENTAJE DE AVANCE DE ACUERDO AL CRONOGRAMA: </Text>
             <Text style={styles.text}>{avance}</Text>
           </View>
@@ -112,7 +119,7 @@ const styles = StyleSheet.create({
             {actividades.map((actividad, index) => (
               <View style={styles.tableRow} key={index}>
                 <View style={styles.tableCol}>
-                  <Text style={styles.tableCell}>{actividad.fecha}</Text>
+                  <Text style={styles.tableCell}>{actividad.fecha_actividad}</Text>
                 </View>
                 <View style={styles.tableCol}>
                   <Text style={styles.tableCell}>{actividad.descripcion}</Text>
