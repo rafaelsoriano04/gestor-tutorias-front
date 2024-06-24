@@ -42,10 +42,21 @@ const NuevoInforme = () => {
     // Formateamos el mes y el día para asegurarnos de que tienen dos dígitos
         const formattedMonth = month.toString().padStart(2, "0");
         const formattedDay = lastDay.toString().padStart(2, "0");
-
   return `${year}-${formattedMonth}-${formattedDay}`;
     };
 
+    const getPrimeDiaMes = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const firstDay = 1;
+        const formattedMonth = month.toString().padStart(2, "0");
+        const formattedDay = firstDay.toString().padStart(2, "0");
+    
+        return `${year}-${formattedMonth}-${formattedDay}`;
+    };
+    
+    const primerDia = getPrimeDiaMes();
     const currentDate = getCurrentDate();
 
     const eliminarActividad = (index) => {
@@ -80,6 +91,15 @@ const NuevoInforme = () => {
                 Swal.fire({
                     title: "Operación no permitida",
                     text: "Todos los campos de las actividades deben estar llenos.",
+                    icon: "error",
+                    confirmButtonText: "OK",
+                });
+                return;
+            }
+            if (!fechaCreacionInforme) {
+                Swal.fire({
+                    title: "Operación no permitida",
+                    text: "Ingrese la fecha de creación del informe",
                     icon: "error",
                     confirmButtonText: "OK",
                 });
@@ -466,7 +486,7 @@ const NuevoInforme = () => {
                             className="form-control"
                             id="notificationDate"
                             value={fechaCreacionInforme}
-                            min={fechaAprobacion}
+                            min={primerDia}
                             max={currentDate} //No permite que ingrese una fecha futura
                             onChange={(e) =>
                                 setFechaCreacionInforme(e.target.value)
