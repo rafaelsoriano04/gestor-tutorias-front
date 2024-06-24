@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import ReactDOM from 'react-dom';
 import "./css/Informe.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "./Navbar";
+import { PDFViewer } from "@react-pdf/renderer";
+import VisualizadorPDF from "./VisualizadorPDF";
 
 const NuevoInforme = () => {
     const navigate = useNavigate();
@@ -21,19 +24,39 @@ const NuevoInforme = () => {
     const [fechaCreacionInforme, setFechaCreacionInforme] = useState("");
     const [avance_total, setAvanceTotal] = useState(0);
     const [temaTitulacion, setTemaTitulacion] = useState("");
-    const [value, setValue] = useState("");
+    const [nuevoPorcentaje, setNuevoPorcentaje] = useState("");
     const token = localStorage.getItem("jwtToken");
     const [persona, setPersona] = useState({});
+    const [ultimaFecha, setUltimaFecha] = useState("");
+
 
     //obtiene la fecha actual en formato YYYY-MM-DD.
     const getCurrentDate = () => {
         const today = new Date();
         const year = today.getFullYear();
-        const month = (today.getMonth() + 1).toString().padStart(2, "0");
-        const day = today.getDate().toString().padStart(2, "0");
-        return `${year}-${month}-${day}`;
+        const month = today.getMonth() + 1;
+
+    // Obtenemos el último día del mes
+        const lastDay = new Date(year, month, 0).getDate();
+
+    // Formateamos el mes y el día para asegurarnos de que tienen dos dígitos
+        const formattedMonth = month.toString().padStart(2, "0");
+        const formattedDay = lastDay.toString().padStart(2, "0");
+  return `${year}-${formattedMonth}-${formattedDay}`;
     };
 
+    const getPrimeDiaMes = () => {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth() + 1;
+        const firstDay = 1;
+        const formattedMonth = month.toString().padStart(2, "0");
+        const formattedDay = firstDay.toString().padStart(2, "0");
+    
+        return `${year}-${formattedMonth}-${formattedDay}`;
+    };
+    
+    const primerDia = getPrimeDiaMes();
     const currentDate = getCurrentDate();
 
     const eliminarActividad = (index) => {
@@ -73,6 +96,15 @@ const NuevoInforme = () => {
                 });
                 return;
             }
+            if (!fechaCreacionInforme) {
+                Swal.fire({
+                    title: "Operación no permitida",
+                    text: "Ingrese la fecha de creación del informe",
+                    icon: "error",
+                    confirmButtonText: "OK",
+                });
+                return;
+            }
         }
         setActividades([
             ...actividades,
@@ -89,6 +121,7 @@ const NuevoInforme = () => {
 
     // Actualiza la fecha de una actividad específica
     const handleFechaChange = (index, event) => {
+        setUltimaFecha(event.target.value);
         const newActividades = [...actividades];
         newActividades[index].fecha_actividad = event.target.value;
         setActividades(newActividades);
@@ -142,7 +175,7 @@ const NuevoInforme = () => {
     };
 
     // Metodo que verifica el numero de porcentaje de avance
-    const handleChange = (e) => {
+    const handleChangeProcentaje = (e) => {
         const newValue = e.target.value;
         if (
             /^\d*$/.test(newValue) &&
@@ -151,7 +184,7 @@ const NuevoInforme = () => {
                     Number(newValue) <=
                         100)) /*&& (Number(newValue+avance_total)>100)*/
         ) {
-            setValue(newValue);
+            setNuevoPorcentaje(newValue);
             setPorcentajeAvance(newValue);
         }
     };
@@ -297,6 +330,52 @@ const NuevoInforme = () => {
         }
     };
 
+    const anexo = "5";
+    const data = {
+        nombreEstudiante: nombreEstudiante,
+        fechaAprobacion: fechaAprobacion,
+        tema: temaTitulacion,
+        fechaCreacion: fechaCreacionInforme,
+        avance: nuevoPorcentaje+"%",
+        actividades: actividades,
+        anexo: anexo,
+        nombreDocente: persona.nombre +" "+ persona.apellido,
+      };
+
+    
+    const handleOpenPDF = () => {
+        if(!fechaCreacionInforme){
+            Swal.fire({
+                title: "Operación no permitida",
+                text: "Ingrese la fecha de creación del informe",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            return;
+        }
+
+        if(!porcentajeAvance){
+            Swal.fire({
+                title: "Operación no permitida",
+                text: "Ingrese el porcentaje de avance del informe",
+                icon: "error",
+                confirmButtonText: "OK",
+            });
+            return;
+        }
+
+        const pdfWindow = window.open('', 'PDFViewer', 'width=800,height=700');
+        const container = pdfWindow.document.createElement('div');
+        pdfWindow.document.body.appendChild(container);
+    
+        const root = ReactDOM.createRoot(container);
+        root.render(
+      <PDFViewer style={{ width: '100%', height: '95vh' }}>
+        <VisualizadorPDF {...data} />
+      </PDFViewer>
+    );
+      };
+
     return (
         <div>
             <Navbar nombre={persona.nombre} apellido={persona.apellido} />
@@ -315,7 +394,15 @@ const NuevoInforme = () => {
                     <div className="col d-flex justify-content-center align-items-center">
                         <h1>Nuevo Informe</h1>
                     </div>
-                    <div className="col"></div>
+                    <div className="col d-flex justify-content-end align-items-center">
+                        <button
+                            type="button"
+                            className="btn btn-primary btn-floating"
+                             onClick={handleOpenPDF}
+                        >
+                            <i className="fa fa-eye fa-2"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div className="row container mb-3">
@@ -377,7 +464,7 @@ const NuevoInforme = () => {
                             <input
                                 type="text"
                                 value={avance_total}
-                                onChange={handleChange}
+                                //onChange={handleChange}
                                 className="form-control"
                                 id="number-input"
                                 disabled
@@ -399,7 +486,7 @@ const NuevoInforme = () => {
                             className="form-control"
                             id="notificationDate"
                             value={fechaCreacionInforme}
-                            min={fechaAprobacion}
+                            min={primerDia}
                             max={currentDate} //No permite que ingrese una fecha futura
                             onChange={(e) =>
                                 setFechaCreacionInforme(e.target.value)
@@ -416,8 +503,8 @@ const NuevoInforme = () => {
                         <div className="input-group">
                             <input
                                 type="text"
-                                value={value}
-                                onChange={handleChange}
+                                value={nuevoPorcentaje}
+                                onChange={handleChangeProcentaje}
                                 className="form-control"
                                 id="porcentaje-avance-input"
                             />
@@ -470,6 +557,7 @@ const NuevoInforme = () => {
                                         }
                                         className="form-control"
                                         max={fechaCreacionInforme}
+                                        min={ultimaFecha}
                                     />
                                 </td>
                                 <td className="text-center">
