@@ -1,4 +1,4 @@
-import React from "react";
+/* eslint-disable react/prop-types */
 import {
   Page,
   Image,
@@ -10,16 +10,16 @@ import {
 import encabezado from "../assets/encabezadoPDF.png";
 
 const getCurrentDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const day = today.getDate();
 
-    // Formateamos el mes y el día para asegurarnos de que tienen dos dígitos
-    const formattedMonth = month.toString().padStart(2, "0");
-    const formattedDay = day.toString().padStart(2, "0");
+  // Formateamos el mes y el día para asegurarnos de que tienen dos dígitos
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDay = day.toString().padStart(2, "0");
 
-    return `${year}-${formattedMonth}-${formattedDay}`;
+  return `${year}-${formattedMonth}-${formattedDay}`;
 };
 // Estilos para el documento PDF
 const styles = StyleSheet.create({
@@ -88,7 +88,6 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
 });
-
 
 /*const PDFAnexo11 = ({ estudiante, nombreDocente, actividades = [] }) => {
     const groupActivitiesByMonth = (activities) => {
@@ -193,107 +192,122 @@ const styles = StyleSheet.create({
     );
   };*/
 
-  const PDFAnexo11 = ({ estudiante, nombreDocente, actividades = [] }) => {
-    const groupActivitiesByMonth = (activities) => {
-      const grouped = activities.reduce((acc, activity) => {
-        const date = new Date(activity.fecha_actividad);
-        const month = date.getMonth() + 1; 
-        const year = date.getFullYear();
-        const key = `${month < 10 ? '0' + month : month}-${year}`;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(activity);
-        return acc;
-      }, {});
-  
-      return Object.keys(grouped).map(key => {
-        const activitiesInMonth = grouped[key];
-        const [month, year] = key.split('-');
-        const firstDay = 1;
-        const lastDay = new Date(year, month, 0).getDate(); // Obtener el último día del mes actual
-        const dateRange = `Del ${firstDay} al ${lastDay} de ${new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}`;
-  
-        const activityDescriptions = activitiesInMonth.map(a => "• " + a.descripcion).join('\n');
-  
-        return { key, dateRange, activityDescriptions };
-      });
-    };
-  
-    const groupedActivities = groupActivitiesByMonth(actividades);
-  
-    return (
-      <Document>
-        <Page size="A4" style={styles.page}>
-          <Image src={encabezado} />
-          <View style={styles.section}>
-            <Text style={styles.header}>Anexo 11</Text>
-            <Text style={styles.header}>INFORME FINAL DEL AVANCE DEL TRABAJO DE TITULACIÓN</Text>
-            <Text style={styles.header}>
-              FACULTAD DE INGENIERÍA EN SISTEMAS, ELECTRÓNICA E INDUSTRIAL CARRERA
-              DE TECNOLOGÍAS DE LA INFORMACIÓN
-            </Text>
-            <View style={styles.tituloFila}>
-              <Text style={styles.subtitulos}>FECHA: </Text>
-              <Text style={styles.text}>{getCurrentDate()}</Text>
-            </View>
-            <View style={styles.tituloFila}>
-              <Text style={styles.subtitulos}>NOMBRE DEL ESTUDIANTE: </Text>
-              <Text style={styles.text}>{`${estudiante.persona.nombre} ${estudiante.persona.apellido}`}</Text>
-            </View>
-            <View style={styles.tituloFila}>
-              <Text style={styles.subtitulos}>MODALIDAD DE TITULACIÓN: </Text>
-              <Text style={styles.text}>PROYECTO DE INVESTIGACIÓN</Text>
-            </View>
-            <View style={styles.tituloFila}>
-              <Text style={styles.subtitulos}>
-                TEMA DEL TRABAJO DE TITULACIÓN:{" "}
-              </Text>
-              <Text style={styles.text}>{estudiante.titulacion.tema}</Text>
-            </View>
-            <View>
-              <Text style={styles.subtitulos}>
-                FECHA DE APROBACIÓN DE LA PROPUESTA DEL PERFIL DEL TRABAJO DE
-                TITULACIÓN POR EL CONSEJO DIRECTIVO:{" "}
-              </Text>
-              <Text style={styles.text}>{estudiante.titulacion.fecha_aprobacion}</Text>
-            </View>
-            <View style={styles.tituloFila}>
-              <Text style={styles.subtitulos}>
-                PORCENTAJE DE AVANCE DE ACUERDO AL CRONOGRAMA:{" "}
-              </Text>
-              <Text style={styles.text}>100%</Text>
-            </View>
+const PDFAnexo11 = ({ estudiante, nombreDocente, actividades = [] }) => {
+  const groupActivitiesByMonth = (activities) => {
+    const grouped = activities.reduce((acc, activity) => {
+      let date = new Date(activity.fecha_actividad);
+      date.setDate(date.getDate() + 1); // Sumar un día para corregir el problema
+      const month = date.getMonth() + 1; // Los meses en JavaScript son 0-indexados, así que añadimos 1
+
+      const year = date.getFullYear();
+      const key = `${month < 10 ? "0" + month : month}-${year}`;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(activity);
+      return acc;
+    }, {});
+
+    return Object.keys(grouped).map((key) => {
+      const activitiesInMonth = grouped[key];
+      const [month, year] = key.split("-");
+      const firstDay = 1;
+      const lastDay = new Date(year, month, 0).getDate(); // Obtener el último día del mes actual correctamente
+      const dateRange = `Del ${firstDay} al ${lastDay} de ${new Date(
+        year,
+        month - 1
+      ).toLocaleString("default", { month: "long", year: "numeric" })}`;
+
+      const activityDescriptions = activitiesInMonth
+        .map((a) => "• " + a.descripcion)
+        .join("\n");
+
+      return { key, dateRange, activityDescriptions };
+    });
+  };
+
+  const groupedActivities = groupActivitiesByMonth(actividades);
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <Image src={encabezado} />
+        <View style={styles.section}>
+          <Text style={styles.header}>Anexo 11</Text>
+          <Text style={styles.header}>
+            INFORME FINAL DEL AVANCE DEL TRABAJO DE TITULACIÓN
+          </Text>
+          <Text style={styles.header}>
+            FACULTAD DE INGENIERÍA EN SISTEMAS, ELECTRÓNICA E INDUSTRIAL CARRERA
+            DE TECNOLOGÍAS DE LA INFORMACIÓN
+          </Text>
+          <View style={styles.tituloFila}>
+            <Text style={styles.subtitulos}>FECHA: </Text>
+            <Text style={styles.text}>{getCurrentDate()}</Text>
           </View>
-          <View style={styles.section}>
-            <Text style={styles.header}>Actividades:</Text>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <View style={styles.tableColHeader}>
-                  <Text style={styles.tableCell}>Fecha</Text>
+          <View style={styles.tituloFila}>
+            <Text style={styles.subtitulos}>NOMBRE DEL ESTUDIANTE: </Text>
+            <Text
+              style={styles.text}
+            >{`${estudiante.persona.nombre} ${estudiante.persona.apellido}`}</Text>
+          </View>
+          <View style={styles.tituloFila}>
+            <Text style={styles.subtitulos}>MODALIDAD DE TITULACIÓN: </Text>
+            <Text style={styles.text}>PROYECTO DE INVESTIGACIÓN</Text>
+          </View>
+          <View style={styles.tituloFila}>
+            <Text style={styles.subtitulos}>
+              TEMA DEL TRABAJO DE TITULACIÓN:{" "}
+            </Text>
+            <Text style={styles.text}>{estudiante.titulacion.tema}</Text>
+          </View>
+          <View>
+            <Text style={styles.subtitulos}>
+              FECHA DE APROBACIÓN DE LA PROPUESTA DEL PERFIL DEL TRABAJO DE
+              TITULACIÓN POR EL CONSEJO DIRECTIVO:{" "}
+            </Text>
+            <Text style={styles.text}>
+              {estudiante.titulacion.fecha_aprobacion}
+            </Text>
+          </View>
+          <View style={styles.tituloFila}>
+            <Text style={styles.subtitulos}>
+              PORCENTAJE DE AVANCE DE ACUERDO AL CRONOGRAMA:{" "}
+            </Text>
+            <Text style={styles.text}>100%</Text>
+          </View>
+        </View>
+        <View style={styles.section}>
+          <Text style={styles.header}>Actividades:</Text>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <View style={styles.tableColHeader}>
+                <Text style={styles.tableCell}>Fecha</Text>
+              </View>
+              <View style={styles.tableColHeader}>
+                <Text style={styles.tableCell}>Actividad</Text>
+              </View>
+            </View>
+            {groupedActivities.map((group, index) => (
+              <View style={styles.tableRow} key={index} wrap={false}>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>{group.dateRange}</Text>
                 </View>
-                <View style={styles.tableColHeader}>
-                  <Text style={styles.tableCell}>Actividad</Text>
+                <View style={styles.tableCol}>
+                  <Text style={styles.tableCell}>
+                    {group.activityDescriptions}
+                  </Text>
                 </View>
               </View>
-              {groupedActivities.map((group, index) => (
-                <View style={styles.tableRow} key={index} wrap={false}>
-                  <View style={styles.tableCol}>
-                    <Text style={styles.tableCell}>{group.dateRange}</Text>
-                  </View>
-                  <View style={styles.tableCol}>
-                    <Text style={styles.tableCell}>{group.activityDescriptions}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
+            ))}
           </View>
-          <View style={styles.firmaContainer}>
-            <Text style={styles.firma}>_____________________________</Text>
-            <Text style={styles.firma}>ING. {nombreDocente} </Text>
-            <Text style={styles.firma}>TUTOR TRABAJO TITULACIÓN </Text>
-          </View>
-        </Page>
-      </Document>
-    );
-  };
+        </View>
+        <View style={styles.firmaContainer}>
+          <Text style={styles.firma}>_____________________________</Text>
+          <Text style={styles.firma}>ING. {nombreDocente} </Text>
+          <Text style={styles.firma}>TUTOR TRABAJO TITULACIÓN </Text>
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 export default PDFAnexo11;

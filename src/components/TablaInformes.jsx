@@ -1,10 +1,11 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./css/TablaInformes.css";
-import ReactDOM from 'react-dom';
+import ReactDOM from "react-dom";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import { Trash, Download } from "react-bootstrap-icons";
@@ -57,34 +58,10 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     }
   };
 
-  const abrirInforme = (idInforme, numeroInforme) => {
-    const ultimoInforme = informes[informes.length - 1].id;
-
-    if (idInforme !== ultimoInforme) {
-      Swal.fire({
-        title: "Confirmación",
-        text: "No se esta editando un informe reciente. ¿Deseas editar bajo su responsabilidad?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Continuar",
-        cancelButtonText: "Cancelar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          let id = estudiante.titulacion.id;
-          localStorage.setItem("esUltimo", false);
-          localStorage.setItem("idInforme", idInforme);
-          localStorage.setItem("numeroInforme", numeroInforme);
-          navigate(`/informe/${id}`);
-        }
-      });
-    } else {
-      // Si el informe es el último, navega directamente
-      let id = estudiante.titulacion.id;
-      localStorage.setItem("esUltimo", true);
-      localStorage.setItem("numeroInforme", numeroInforme);
-      localStorage.setItem("idInforme", idInforme);
-      navigate(`/informe/${id}`);
-    }
+  const abrirInforme = (idInforme) => {
+    let id = estudiante.titulacion.id;
+    localStorage.setItem("idInforme", idInforme);
+    navigate(`/informe/${id}`);
   };
 
   const redirigirInforme = () => {
@@ -179,8 +156,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
       const response = await axios.get(
         `http://localhost:3000/actividades/estudiante/${idEstudiante}`
       );
-      if(response.data){
-        console.log(response.data)
+      if (response.data) {
         return response.data;
       }
     } catch (error) {
@@ -206,8 +182,6 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
   }, [estudiante.id]);
 
   const handleAnexo11 = () => {
-    
-
     if (isLoading) {
       return (
         <button className="btn btn-sm me-2" disabled>
@@ -220,8 +194,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
       nombreDocente: `${persona.nombre} ${persona.apellido}`,
       actividades: actividadesAnexo11,
     };
-    console.log(dataAnexo11)
-    
+
     const pdfWindow = window.open("", "PDFViewer", "width=800,height=700");
     const container = pdfWindow.document.createElement("div");
     pdfWindow.document.body.appendChild(container);
@@ -255,13 +228,14 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     }
 
     const PDFdata = {
-      nombreEstudiante: estudiante.persona.nombre + " "+ estudiante.persona.apellido,
+      nombreEstudiante:
+        estudiante.persona.nombre + " " + estudiante.persona.apellido,
       fechaAprobacion: estudiante.titulacion.fecha_aprobacion,
       fechaCreacion: informe.fecha,
       tema: estudiante.titulacion.tema,
       avance: informe.porcentaje_avance + "%",
       actividades: actividades,
-      anexo: '5',
+      anexo: "5",
       nombreDocente: persona.nombre + " " + persona.apellido,
     };
 
@@ -286,24 +260,24 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         <th
           scope="row"
           className="align-middle"
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
         >
           {firstIndex + index + 1}
         </th>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle justify-content-center"
         >
           {informe.anexo}
         </td>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle"
         >
           {informe.fecha}
         </td>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle"
         >
           <div className="progress">
@@ -320,22 +294,20 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
           </div>
         </td>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle"
         >
           {informe.estado}
         </td>
         <td className="d-flex justify-content-center align-middle">
           <DownloadButton informe={informe} />
-          {index === informesPagina.length - 1 && (
-            <button
-              title="Eliminar Informe"
-              className="btn hover btn-sm"
-              onClick={() => eliminarInforme(informe.id)}
-            >
-              <Trash color="red" size={25} />
-            </button>
-          )}
+          <button
+            title="Eliminar Informe"
+            className="btn hover btn-sm"
+            onClick={() => eliminarInforme(informe.id)}
+          >
+            <Trash color="red" size={25} />
+          </button>
         </td>
       </tr>
     ));
@@ -391,8 +363,6 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
       },
     }));
   };
-
-  
 
   const handleBack = () => {
     navigate("/principal");
@@ -595,8 +565,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
             Agregar Informe
           </button>
           {estudiante && estudiante.titulacion.avance_total === 100 && (
-            <button className="btn btn-primary mb-3 ms-2" onClick={handleAnexo11}>
-              Informe 100%
+            <button
+              className="btn btn-primary mb-3 ms-2"
+              onClick={handleAnexo11}
+            >
+              Anexo 11
             </button>
           )}
           <table className="table table-hover table-bordered">
