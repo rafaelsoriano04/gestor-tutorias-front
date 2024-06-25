@@ -197,9 +197,9 @@ const styles = StyleSheet.create({
     const groupActivitiesByMonth = (activities) => {
       const grouped = activities.reduce((acc, activity) => {
         const date = new Date(activity.fecha_actividad);
-        const month = date.getMonth() + 1; // Ajustar para obtener el mes correcto (de 1 a 12)
+        const month = date.getMonth() + 1; 
         const year = date.getFullYear();
-        const key = `${month < 10 ? '0' + month : month}-${year}`; // Asegurarse de que el mes tenga dos dígitos
+        const key = `${month < 10 ? '0' + month : month}-${year}`;
         if (!acc[key]) acc[key] = [];
         acc[key].push(activity);
         return acc;
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
       return Object.keys(grouped).map(key => {
         const activitiesInMonth = grouped[key];
         const [month, year] = key.split('-');
-        const firstDay = 1; // El primer día del mes siempre es 1
+        const firstDay = 1;
         const lastDay = new Date(year, month, 0).getDate(); // Obtener el último día del mes actual
         const dateRange = `Del ${firstDay} al ${lastDay} de ${new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}`;
   

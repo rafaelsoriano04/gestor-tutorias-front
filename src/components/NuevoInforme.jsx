@@ -516,7 +516,7 @@ const NuevoInforme = () => {
                     <input
                       type="text"
                       value={actividad.descripcion}
-                      maxLength={100}
+                      maxLength={255}
                       onChange={(e) => handleDescripcionChange(index, e)}
                       className="form-control"
                     />

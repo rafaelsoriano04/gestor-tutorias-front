@@ -228,7 +228,7 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     const root = ReactDOM.createRoot(container);
     root.render(
       <PDFViewer style={{ width: "100%", height: "95vh" }}>
-        <PDFAnexo11 {...dataAnexo11} />
+        <PDFAnexo11 {...dataAnexo11} fileName="Informe Anexo 11" />
       </PDFViewer>
     );
   };
