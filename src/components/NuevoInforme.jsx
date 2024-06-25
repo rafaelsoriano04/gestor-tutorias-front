@@ -337,13 +337,14 @@ const NuevoInforme = () => {
 
   const handleDateChange = (e) => {
     const newDate = new Date(e.target.value);
+    const currentDate = new Date(fechaCreacionInforme); // Asegúrate de que 'informe.fecha' es accesible y está en el formato adecuado
+
+    // Calcula el último día del mes seleccionado
     const lastDayOfMonth = new Date(
       newDate.getFullYear(),
       newDate.getMonth() + 1,
       0
     );
-
-    setFechaCreacionInforme(e.target.value);
 
     // Si el día seleccionado no es el último día, sugerirlo sutilmente
     if (
@@ -353,16 +354,52 @@ const NuevoInforme = () => {
       Swal.fire({
         toast: true,
         position: "top-end",
-        didOpen: (toast) => {
-          toast.onmouseenter = Swal.stopTimer;
-          toast.onmouseleave = Swal.resumeTimer;
-        },
         icon: "warning",
         title: `Considera seleccionar el último día del mes.`,
         showConfirmButton: false,
         timer: 3000,
         timerProgressBar: true,
       });
+    }
+
+    // Actualiza la fecha en el estado del informe siempre
+    setFechaCreacionInforme(e.target.value);
+
+    // Actualiza las fechas de las actividades si cambia el mes
+    if (
+      newDate.getMonth() !== currentDate.getMonth() ||
+      newDate.getFullYear() !== currentDate.getFullYear()
+    ) {
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "info",
+        title: "Fechas de actividad actualizadas al nuevo mes seleccionado",
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true,
+      });
+      const nuevasActividades = actividades.map((actividad) => {
+        // Extraer el día del mes de la fecha actual de la actividad
+        const diaActividad = new Date(actividad.fecha_actividad).getDate();
+        // Crear una nueva fecha que corresponda al mismo día en el nuevo mes/año
+        const nuevaFechaActividad = new Date(
+          newDate.getFullYear(),
+          newDate.getMonth(),
+          diaActividad
+        );
+        // Asegurarse de no exceder el último día del nuevo mes
+        const fechaFinal =
+          nuevaFechaActividad.getMonth() === newDate.getMonth()
+            ? nuevaFechaActividad
+            : lastDayOfMonth;
+
+        return {
+          ...actividad,
+          fecha_actividad: fechaFinal.toISOString().split("T")[0],
+        };
+      });
+      setActividades(nuevasActividades);
     }
   };
 
@@ -516,7 +553,7 @@ const NuevoInforme = () => {
                     <input
                       type="text"
                       value={actividad.descripcion}
-                      maxLength={100}
+                      maxLength={255}
                       onChange={(e) => handleDescripcionChange(index, e)}
                       className="form-control"
                     />

@@ -148,7 +148,7 @@ const VisualizadorPDF = ({
                         </View>
                     </View>
                     {actividades.map((actividad, index) => (
-                        <View style={styles.tableRow} key={index}>
+                        <View style={styles.tableRow} key={index} wrap={false}>
                             <View style={styles.tableCol}>
                                 <Text style={styles.tableCell}>
                                     {actividad.fecha_actividad}
