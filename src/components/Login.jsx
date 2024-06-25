@@ -90,11 +90,6 @@ const Login = () => {
                     {mensajeError}
                 </p>
             )}
-            <p className="mt-3">
-                <a className="link-underline-light link-offset-2 text-white">
-                    Olvidé mi contraseña
-                </a>
-            </p>
             <button
                 type="submit"
                 className="btnInicio btn btn-light mt-3 btn-lg pe-4 ps-4"

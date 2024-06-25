@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./css/TablaInformes.css";
+import ReactDOM from 'react-dom';
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import { Trash, Download } from "react-bootstrap-icons";
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 import VisualizadorPDF from "./VisualizadorPDF";
+import PDFAnexo11 from "./PDFAnexo11";
 
 // eslint-disable-next-line react/prop-types
 const TablaInformes = ({ id_estudiante, refresh }) => {
@@ -16,8 +18,10 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
   const [itemsPorPagina, setItemsPorPagina] = useState(10);
   const [paginaActual, setPaginaActual] = useState(1);
   const [estudiante, setEstudiante] = useState({
+    id: "",
     persona: {
       nombre: "",
+      apellido: "",
     },
     titulacion: {
       tema: "",
@@ -170,6 +174,65 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     }
   };
 
+  const getActividadesByEstudiante = async (idEstudiante) => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/actividades/estudiante/${idEstudiante}`
+      );
+      if(response.data){
+        console.log(response.data)
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+    }
+  };
+
+  const [actividadesAnexo11, setActividadesAnexo11] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchActividades = async () => {
+      try {
+        const actividadesData = await getActividadesByEstudiante(estudiante.id);
+        setActividadesAnexo11(actividadesData);
+      } catch (error) {
+        console.error("Error fetching activities data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchActividades();
+  }, [estudiante.id]);
+
+  const handleAnexo11 = () => {
+    
+
+    if (isLoading) {
+      return (
+        <button className="btn btn-sm me-2" disabled>
+          Cargando...
+        </button>
+      );
+    }
+    const dataAnexo11 = {
+      estudiante: estudiante,
+      nombreDocente: `${persona.nombre} ${persona.apellido}`,
+      actividades: actividadesAnexo11,
+    };
+    console.log(dataAnexo11)
+    
+    const pdfWindow = window.open("", "PDFViewer", "width=800,height=700");
+    const container = pdfWindow.document.createElement("div");
+    pdfWindow.document.body.appendChild(container);
+    const root = ReactDOM.createRoot(container);
+    root.render(
+      <PDFViewer style={{ width: "100%", height: "95vh" }}>
+        <PDFAnexo11 {...dataAnexo11} />
+      </PDFViewer>
+    );
+  };
+
   const DownloadButton = ({ informe }) => {
     const [actividades, setActividades] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -192,13 +255,13 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     }
 
     const PDFdata = {
-      nombreEstudiante: estudiante.persona.nombre,
+      nombreEstudiante: estudiante.persona.nombre + " "+ estudiante.persona.apellido,
       fechaAprobacion: estudiante.titulacion.fecha_aprobacion,
       fechaCreacion: informe.fecha,
       tema: estudiante.titulacion.tema,
       avance: informe.porcentaje_avance + "%",
       actividades: actividades,
-      anexo: 5,
+      anexo: '5',
       nombreDocente: persona.nombre + " " + persona.apellido,
     };
 
@@ -328,6 +391,8 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
       },
     }));
   };
+
+  
 
   const handleBack = () => {
     navigate("/principal");
@@ -529,6 +594,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
           <button className="btn btn-primary mb-3" onClick={redirigirInforme}>
             Agregar Informe
           </button>
+          {estudiante && estudiante.titulacion.avance_total === 100 && (
+            <button className="btn btn-primary mb-3 ms-2" onClick={handleAnexo11}>
+              Informe 100%
+            </button>
+          )}
           <table className="table table-hover table-bordered">
             <thead className="table-primary">
               <tr>
