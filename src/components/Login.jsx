@@ -92,7 +92,7 @@ const Login = () => {
             )}
             <button
                 type="submit"
-                className="btnInicio btn btn-light mt-3 btn-lg pe-4 ps-4"
+                className="btnInicio btn btn-light mt-4 btn-lg pe-4 ps-4"
             >
                 Iniciar sesión
             </button>
