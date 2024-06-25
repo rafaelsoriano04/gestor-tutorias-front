@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 /* eslint-disable react-hooks/exhaustive-deps */
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useEffect, useState } from "react";
@@ -53,34 +54,10 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     }
   };
 
-  const abrirInforme = (idInforme, numeroInforme) => {
-    const ultimoInforme = informes[informes.length - 1].id;
-
-    if (idInforme !== ultimoInforme) {
-      Swal.fire({
-        title: "Confirmación",
-        text: "No se esta editando un informe reciente. ¿Deseas editar bajo su responsabilidad?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Continuar",
-        cancelButtonText: "Cancelar",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          let id = estudiante.titulacion.id;
-          localStorage.setItem("esUltimo", false);
-          localStorage.setItem("idInforme", idInforme);
-          localStorage.setItem("numeroInforme", numeroInforme);
-          navigate(`/informe/${id}`);
-        }
-      });
-    } else {
-      // Si el informe es el último, navega directamente
-      let id = estudiante.titulacion.id;
-      localStorage.setItem("esUltimo", true);
-      localStorage.setItem("numeroInforme", numeroInforme);
-      localStorage.setItem("idInforme", idInforme);
-      navigate(`/informe/${id}`);
-    }
+  const abrirInforme = (idInforme) => {
+    let id = estudiante.titulacion.id;
+    localStorage.setItem("idInforme", idInforme);
+    navigate(`/informe/${id}`);
   };
 
   const redirigirInforme = () => {
@@ -223,24 +200,24 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         <th
           scope="row"
           className="align-middle"
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
         >
           {firstIndex + index + 1}
         </th>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle justify-content-center"
         >
           {informe.anexo}
         </td>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle"
         >
           {informe.fecha}
         </td>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle"
         >
           <div className="progress">
@@ -257,22 +234,20 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
           </div>
         </td>
         <td
-          onDoubleClick={() => abrirInforme(informe.id, firstIndex + index + 1)}
+          onDoubleClick={() => abrirInforme(informe.id)}
           className="align-middle"
         >
           {informe.estado}
         </td>
         <td className="d-flex justify-content-center align-middle">
           <DownloadButton informe={informe} />
-          {index === informesPagina.length - 1 && (
-            <button
-              title="Eliminar Informe"
-              className="btn hover btn-sm"
-              onClick={() => eliminarInforme(informe.id)}
-            >
-              <Trash color="red" size={25} />
-            </button>
-          )}
+          <button
+            title="Eliminar Informe"
+            className="btn hover btn-sm"
+            onClick={() => eliminarInforme(informe.id)}
+          >
+            <Trash color="red" size={25} />
+          </button>
         </td>
       </tr>
     ));
@@ -314,7 +289,15 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         timerProgressBar: true,
       });
     } catch (error) {
-      console.error("Error fetching informes:", error);
+      if (error.response.status && error.response.status === 409) {
+        const { message } = error.response.data;
+        Swal.fire({
+          title: "Oops",
+          text: message,
+          icon: "warning",
+          confirmButtonText: "OK",
+        });
+      }
     }
   };
 
@@ -367,211 +350,217 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
   };
 
   return (
-    <div className="container mt-3">
+    <div className="container mt-4 mb-4">
+      <div className="row mb-4">
+        <div className="col d-flex justify-content-start align-items-center">
+          <button
+            type="button"
+            className="btn btn-primary btn-floating"
+            onClick={handleBack}
+          >
+            <i className="fa fa-arrow-left fa-2"></i>
+          </button>
+        </div>
+        <div className="col d-flex justify-content-center align-items-center">
+          <h1>Estudiante</h1>
+        </div>
+        <div className="col d-flex justify-content-end align-items-center"></div>
+      </div>
       <div className="row justify-content-center">
         <div className="col-12 table-responsive">
-          <h2 className="text-center mb-1">Estudiante</h2>
-          <div className="mb-2">
-            <button
-              type="button"
-              className="btn btn-primary btn-floating"
-              onClick={handleBack}
-            >
-              <i className="fa fa-arrow-left fa-2"></i>
-            </button>
-          </div>
-          <div>
-            {estudiante && (
-              <div className="card mb-4">
-                <div className="card-header">Datos del Estudiante</div>
-                <div className="card-body">
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Carrera</label>
-                      <select
-                        className="form-select"
-                        value={estudiante.carrera}
-                        onChange={(e) =>
-                          setEstudiante({
-                            ...estudiante,
-                            carrera: e.target.value,
-                          })
-                        }
-                      >
-                        <option value="Ingeniería en Software">
-                          Ingeniería en Software
-                        </option>
-                        <option value="Ingeniería en Telecomunicaciones">
-                          Ingeniería en Telecomunicaciones
-                        </option>
-                        <option value="Ingeniería Industrial">
-                          Ingeniería Industrial
-                        </option>
-                        <option value="Ingeniería en Automatización y Robótica">
-                          Ingeniería en Automatización y Robótica
-                        </option>
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Tema de Titulación</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        maxLength="150"
-                        value={estudiante.titulacion.tema}
-                        onChange={(e) =>
-                          setEstudiante({
-                            ...estudiante,
-                            titulacion: {
-                              ...estudiante.titulacion,
-                              tema: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
+          {estudiante && (
+            <div className="card mb-4">
+              <div className="card-header">Datos del Estudiante</div>
+              <div className="card-body">
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Carrera</label>
+                    <select
+                      className="form-select"
+                      value={estudiante.carrera}
+                      onChange={(e) =>
+                        setEstudiante({
+                          ...estudiante,
+                          carrera: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="Ingeniería en Software">
+                        Ingeniería en Software
+                      </option>
+                      <option value="Ingeniería en Telecomunicaciones">
+                        Ingeniería en Telecomunicaciones
+                      </option>
+                      <option value="Ingeniería Industrial">
+                        Ingeniería Industrial
+                      </option>
+                      <option value="Ingeniería en Automatización y Robótica">
+                        Ingeniería en Automatización y Robótica
+                      </option>
+                    </select>
                   </div>
-                  <div className="row">
-                    <div className="col-md-4 mb-3">
-                      <label className="form-label">Nombre</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        maxLength="30"
-                        value={estudiante.persona.nombre}
-                        onChange={(e) =>
-                          setEstudiante({
-                            ...estudiante,
-                            persona: {
-                              ...estudiante.persona,
-                              nombre: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="col-md-4 mb-3">
-                      <label className="form-label">Apellido</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        maxLength="30"
-                        value={estudiante.persona.apellido}
-                        onChange={(e) =>
-                          setEstudiante({
-                            ...estudiante,
-                            persona: {
-                              ...estudiante.persona,
-                              apellido: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="col-md-2">
-                      <label htmlFor="studentName" className="form-label">
-                        Fecha de Aprobación
-                      </label>
-                      <input
-                        type="date"
-                        className="form-control"
-                        id="studentName"
-                        value={estudiante.titulacion.fecha_aprobacion}
-                        onChange={handleDateChange}
-                      />
-                    </div>
-                    <div className="col-2">
-                      <label htmlFor="studentName" className="form-label">
-                        Estado
-                      </label>
-                      <select
-                        className="form-select"
-                        value={estudiante.estado}
-                        onChange={handleEstadoChange}
-                      >
-                        <option value="En proceso">En proceso</option>
-                        <option value="Finalizado">Finalizado</option>
-                        <option value="De baja">De baja</option>
-                      </select>
-                    </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Tema de Titulación</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      maxLength="150"
+                      value={estudiante.titulacion.tema}
+                      onChange={(e) =>
+                        setEstudiante({
+                          ...estudiante,
+                          titulacion: {
+                            ...estudiante.titulacion,
+                            tema: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="row">
+                  <div className="col-md-4 mb-3">
+                    <label className="form-label">Nombre</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      maxLength="30"
+                      value={estudiante.persona.nombre}
+                      onChange={(e) =>
+                        setEstudiante({
+                          ...estudiante,
+                          persona: {
+                            ...estudiante.persona,
+                            nombre: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="col-md-4 mb-3">
+                    <label className="form-label">Apellido</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      maxLength="30"
+                      value={estudiante.persona.apellido}
+                      onChange={(e) =>
+                        setEstudiante({
+                          ...estudiante,
+                          persona: {
+                            ...estudiante.persona,
+                            apellido: e.target.value,
+                          },
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="col-md-2">
+                    <label htmlFor="studentName" className="form-label">
+                      Fecha de Aprobación
+                    </label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      id="studentName"
+                      value={estudiante.titulacion.fecha_aprobacion}
+                      onChange={handleDateChange}
+                    />
+                  </div>
+                  <div className="col-2">
+                    <label htmlFor="studentName" className="form-label">
+                      Estado
+                    </label>
+                    <select
+                      className="form-select"
+                      value={estudiante.estado}
+                      onChange={handleEstadoChange}
+                    >
+                      <option value="En proceso">En proceso</option>
+                      <option value="Finalizado">Finalizado</option>
+                      <option value="De baja">De baja</option>
+                    </select>
+                  </div>
 
-                    <div className="col-md-12 mb-3">
-                      <label className="form-label">Progreso Total (%)</label>
-                      <div className="progress">
-                        <div
-                          className="progress-bar bg-primary progress-bar-animated progress-bar-striped"
-                          role="progressbar"
-                          style={{
-                            width: `${estudiante.titulacion.avance_total}%`,
-                          }}
-                          aria-valuenow={estudiante.titulacion.avance_total}
-                          aria-valuemin="0"
-                          aria-valuemax="100"
-                        >
-                          {estudiante.titulacion.avance_total}%
-                        </div>
+                  <div className="col-md-12 mb-3">
+                    <label className="form-label">Progreso Total (%)</label>
+                    <div className="progress">
+                      <div
+                        className="progress-bar bg-primary progress-bar-animated progress-bar-striped"
+                        role="progressbar"
+                        style={{
+                          width: `${estudiante.titulacion.avance_total}%`,
+                        }}
+                        aria-valuenow={estudiante.titulacion.avance_total}
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                      >
+                        {estudiante.titulacion.avance_total}%
                       </div>
                     </div>
                   </div>
-                  <div className="d-flex justify-content-center">
-                    <button
-                      className="btn btn-primary btn-custom mb-1"
-                      onClick={updateEstudiante}
-                    >
-                      Actualizar Información
-                    </button>
-                  </div>
+                </div>
+                <div className="d-flex justify-content-center">
+                  <button
+                    className="btn btn-primary btn-custom mb-1"
+                    onClick={updateEstudiante}
+                  >
+                    Actualizar Información
+                  </button>
                 </div>
               </div>
-            )}
-          </div>
-          <h2 className="text-center mb-1">Informes</h2>
-          <button className="btn btn-primary mb-3" onClick={redirigirInforme}>
-            Agregar Informe
-          </button>
-          <table className="table table-hover table-bordered">
-            <thead className="table-primary">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Anexo</th>
-                <th scope="col">Fecha</th>
-                <th scope="col">Porcentaje de avance</th>
-                <th scope="col">Estado</th>
-                <th scope="col" className="text-center">
-                  Opciones
-                </th>
-              </tr>
-            </thead>
-            <tbody>{mostrarInformes()}</tbody>
-          </table>
-          <nav className="d-flex justify-content-between align-items-center mb-5">
-            <ul className="pagination mb-0">
-              {pageNumbers.map((number) => (
-                <li key={number} className="page-item">
-                  <button
-                    onClick={() => paginate(number)}
-                    className="page-link"
-                  >
-                    {number}
-                  </button>
-                </li>
-              ))}
-            </ul>
-            <div>
-              <select
-                onChange={(e) =>
-                  setItemsPorPagina(parseInt(e.target.value, 10))
-                }
-                value={itemsPorPagina}
-                className="form-select"
-              >
-                <option value={5}>5 por página</option>
-                <option value={10}>10 por página</option>
-                <option value={20}>20 por página</option>
-                <option value={50}>50 por página</option>
-              </select>
             </div>
-          </nav>
+          )}
+
+          <div className="border-primary rounded p-3 shadow mb-3">
+            <h2 className="text-center mb-1">Informes</h2>
+            <button className="btn btn-primary mb-3" onClick={redirigirInforme}>
+              Agregar Informe
+            </button>
+            <table className="table table-hover table-bordered">
+              <thead className="table-primary">
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Anexo</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Porcentaje de avance</th>
+                  <th scope="col">Estado</th>
+                  <th scope="col" className="text-center">
+                    Opciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody>{mostrarInformes()}</tbody>
+            </table>
+            <nav className="d-flex justify-content-between align-items-center mb-2">
+              <ul className="pagination mb-0">
+                {pageNumbers.map((number) => (
+                  <li key={number} className="page-item">
+                    <button
+                      onClick={() => paginate(number)}
+                      className="page-link"
+                    >
+                      {number}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+              <div>
+                <select
+                  onChange={(e) =>
+                    setItemsPorPagina(parseInt(e.target.value, 10))
+                  }
+                  value={itemsPorPagina}
+                  className="form-select"
+                >
+                  <option value={5}>5 por página</option>
+                  <option value={10}>10 por página</option>
+                  <option value={20}>20 por página</option>
+                  <option value={50}>50 por página</option>
+                </select>
+              </div>
+            </nav>
+          </div>
         </div>
       </div>
     </div>
