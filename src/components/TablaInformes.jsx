@@ -164,6 +164,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     }
   };
 
+  const getMes = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleString('default', { month: 'long' });
+  };
+
   const [actividadesAnexo11, setActividadesAnexo11] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -189,9 +194,15 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
         </button>
       );
     }
+    
+    let fecha_informe_100;
+    if (informes.length>0){
+      fecha_informe_100 = informes[informes.length-1].fecha;
+    }
     const dataAnexo11 = {
       estudiante: estudiante,
       nombreDocente: `${persona.nombre} ${persona.apellido}`,
+      fecha_informe_100,
       actividades: actividadesAnexo11,
     };
 
@@ -200,8 +211,8 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
     pdfWindow.document.body.appendChild(container);
     const root = ReactDOM.createRoot(container);
     root.render(
-      <PDFViewer style={{ width: "100%", height: "95vh" }}>
-        <PDFAnexo11 {...dataAnexo11} fileName="Informe Anexo 11" />
+      <PDFViewer fileName="Informe Anexo 11" style={{ width: "100%", height: "95vh" }} >
+        <PDFAnexo11 {...dataAnexo11}  fileName="Informe Anexo 11"/>
       </PDFViewer>
     );
   };
@@ -238,11 +249,11 @@ const TablaInformes = ({ id_estudiante, refresh }) => {
       anexo: "5",
       nombreDocente: persona.nombre + " " + persona.apellido,
     };
-
+    const nombreAnexo5 = `informe_Anexo5_${getMes(informe.fecha)}`;
     return (
       <PDFDownloadLink
         document={<VisualizadorPDF {...PDFdata} />}
-        fileName="Informe_Anexo_5.pdf"
+        fileName= {nombreAnexo5}
       >
         <button title="Descargar Informe" className="btn hover btn-sm me-2">
           <Download color="green" size={25} />

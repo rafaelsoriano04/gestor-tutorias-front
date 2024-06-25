@@ -190,15 +190,15 @@ const styles = StyleSheet.create({
         </Page>
       </Document>
     );
-  };*/
+  };*/  
 
-const PDFAnexo11 = ({ estudiante, nombreDocente, actividades = [] }) => {
+const PDFAnexo11 = ({ estudiante,fecha_informe_100, nombreDocente, actividades = [] }) => {
   const groupActivitiesByMonth = (activities) => {
     const grouped = activities.reduce((acc, activity) => {
       let date = new Date(activity.fecha_actividad);
+
       date.setDate(date.getDate() + 1); // Sumar un día para corregir el problema
       const month = date.getMonth() + 1; // Los meses en JavaScript son 0-indexados, así que añadimos 1
-
       const year = date.getFullYear();
       const key = `${month < 10 ? "0" + month : month}-${year}`;
       if (!acc[key]) acc[key] = [];
@@ -206,11 +206,11 @@ const PDFAnexo11 = ({ estudiante, nombreDocente, actividades = [] }) => {
       return acc;
     }, {});
 
-    return Object.keys(grouped).map((key) => {
+    return Object.keys(grouped).map((key, index, array) => {
       const activitiesInMonth = grouped[key];
       const [month, year] = key.split("-");
-      const firstDay = 1;
-      const lastDay = new Date(year, month, 0).getDate(); // Obtener el último día del mes actual correctamente
+      const firstDay = index === 0 ? new Date(estudiante.titulacion.fecha_aprobacion).getDate()+1 : 1;
+      const lastDay = index === array.length - 1 ? new Date(fecha_informe_100).getDate() : new Date(year, month, 0).getDate(); // Obtener el último día del mes actual correctamente o la fecha de informe
       const dateRange = `Del ${firstDay} al ${lastDay} de ${new Date(
         year,
         month - 1
